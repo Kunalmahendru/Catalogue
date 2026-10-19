@@ -14,7 +14,7 @@ export default function StyleGallery({ group, onOpen }) {
   return (
     <section className="style-group" aria-label={group.name}>
       <div className="style-group__head">
-        <div><p className="eyebrow">{String(group.index + 1).padStart(2, "0")} / THE EDIT</p><h3>{group.name}</h3><p>{group.description}</p></div>
+        <div><h3>{group.name}</h3><p>{group.description}</p></div>
         <div className="gallery-controls"><span>{group.designs.length} looks</span><button aria-label={`Scroll ${group.name} left`} disabled={edges.start} onClick={() => move(-1)}>←</button><button aria-label={`Scroll ${group.name} right`} disabled={edges.end} onClick={() => move(1)}>→</button></div>
       </div>
       <div className={`gallery-window ${!edges.start ? "has-left" : ""} ${!edges.end ? "has-right" : ""}`}>

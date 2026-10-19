@@ -69,6 +69,30 @@ Day to day, edit rows in **Table Editor** (`designs`: title, description, price,
 `collections`: order and descriptions). Changes show on the site the next time a page loads. To add a new design, run
 `scripts/make_images.py`, then `scripts/import_to_supabase.py` (uploads the WebP files and updates the rows).
 
+## Admin page (`/admin`)
+
+`https://<your-site>/admin` lets the owner add and remove photos, rename section headings and drag to reorder
+(hold and drag a section's handle, or a photo). It lives in the same Vercel project (a separate chunk, so visitors
+never download it).
+
+**Nothing autosaves.** Edits only change a draft on screen. **Review & publish** lists exactly what will change
+(adds, renames, reorders, deletions) and nothing goes live until you press **Publish now**. **Discard** throws the
+draft away, and the browser warns before you leave with unpublished changes. Once published, the live site shows the
+changes on its next page load.
+
+**How it's protected:** sign in with an ID and password (Supabase Auth; "admin" is stored as `admin@nailsbyroops.admin`).
+The database rules (`backend/supabase/admin.sql`) allow writes only for emails on the `admin_emails` table, so finding
+`/admin` or the public key isn't enough to change anything. Use **Change password** in the page after your first sign-in.
+
+One-time setup:
+
+1. Run `backend/supabase/admin.sql` in the Supabase SQL Editor.
+2. Create the admin user (Authentication -> Users -> Add user, tick *Auto Confirm User*) and add its email to the
+   `admin_emails` table. Optional but wise: Authentication -> Sign In / Providers -> turn off *Allow new users to sign up*.
+
+New photos are cropped to the standard 4:5 in the browser (plain borders trimmed, drag to adjust, slider to zoom) and
+uploaded as WebP when you publish. A section can only be deleted when it is empty.
+
 ## Deploy (one Vercel project)
 
 Import the GitHub repo in Vercel with **Root Directory `frontend`** (framework: Vite). Add two environment variables
