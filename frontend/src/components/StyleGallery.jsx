@@ -1,7 +1,7 @@
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import DesignCard from "./DesignCard.jsx";
 
-export default function StyleGallery({ group, onOpen }) {
+function StyleGallery({ group, onOpen }) {
   const track = useRef(null);
   const [edges, setEdges] = useState({ start: true, end: false });
   const measure = () => {
@@ -25,3 +25,5 @@ export default function StyleGallery({ group, onOpen }) {
     </section>
   );
 }
+
+export default memo(StyleGallery);
