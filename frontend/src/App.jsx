@@ -5,6 +5,7 @@ import StyleGallery from "./components/StyleGallery.jsx";
 import bundled from "./catalogue.json"; // fallback copy if Supabase can't be reached
 import DesignModal from "./components/DesignModal.jsx";
 import ContactPill from "./components/ContactPill.jsx";
+import BackToTop from "./components/BackToTop.jsx";
 import Stats from "./components/Stats.jsx";
 import Offer from "./components/Offer.jsx";
 import About from "./components/About.jsx";
@@ -46,7 +47,7 @@ export default function App() {
 
   // Scroll behaviour, written so it costs almost nothing while scrolling:
   //  - nav highlight: IntersectionObserver (no scroll listener, no layout reads);
-  //  - hero stays pinned on desktop while the page slides over it (pure CSS sticky, nothing runs per frame).
+  //  - hero stays pinned (desktop and phone) while the page slides over it (pure CSS sticky, nothing runs per frame).
   useEffect(() => {
     const hero = heroRef.current;
     const cover = coverRef.current;
@@ -87,10 +88,11 @@ export default function App() {
     document.addEventListener("click", onNavClick);
     for (const type of ["wheel", "touchstart", "keydown"]) window.addEventListener(type, unlock, { passive: true });
 
-    // ---- pinned hero (desktop with a mouse only; phones keep a plain, light page) ----
+    // ---- pinned hero (every screen size unless the visitor prefers reduced motion) ----
     // The hero just stays where it is while the rest of the page slides up over it: no scaling, tilting or fading,
     // and no scroll listener at all. The script only works out where to pin it when the window size changes.
-    const mq = window.matchMedia("(min-width: 1000px) and (hover: hover) and (prefers-reduced-motion: no-preference)");
+    // The same pinning now also runs on phones and tablets (CSS below); only "reduce motion" turns it off.
+    const mq = window.matchMedia("(prefers-reduced-motion: no-preference)");
     const pin = () => {
       // Pin under the nav; if the hero is taller than the screen, pin its bottom edge so nothing is cut off.
       hero.style.top = `${Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight)}px`;
@@ -276,6 +278,7 @@ export default function App() {
       </footer>
 
       {site && <ContactPill site={site} />}
+      <BackToTop />
 
       {openDesign && <DesignModal designs={sequence} design={openDesign} site={site} onClose={close} onSelect={select} />}
     </>

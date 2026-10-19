@@ -33,3 +33,9 @@ export const ClockIcon = (p) => (
     <path d="M12 7v5l3 2" />
   </svg>
 );
+
+export const ArrowUpIcon = (p) => (
+  <svg {...base} strokeWidth="2.4" {...p}>
+    <path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" />
+  </svg>
+);
