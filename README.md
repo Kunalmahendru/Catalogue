@@ -35,8 +35,8 @@ Find the brand on Instagram: [@nailsbyroops_](https://instagram.com/nailsbyroops
 - **Collage hero**: three tilted photos with white-and-beige dry-brush strokes over their borders, on a soft pastel wash.
 - **Collections you can scroll**: every style (chrome, French, 3D charms, festive...) is a horizontal rail with edge fades and arrow controls.
 - **Reel-style viewer**: tap any photo to open a centered card that loops through *all* designs.
-  Swipe up for next, down for previous, left to close, right to open Instagram. On desktop use mouse drag, the scroll
-  wheel, the ▲▼ buttons or the arrow keys (Esc closes). Quick flicks commit instantly and neighbouring photos are preloaded.
+  Swipe up for next, down for previous. On desktop use a trackpad two-finger scroll, the mouse wheel or drag, the ▲▼
+  buttons or the arrow keys (Esc or ✕ closes). The card follows your fingers, quick flicks commit instantly and neighbouring photos are preloaded.
 - **Book this look**: opens WhatsApp with the design name and a link to its photo.
 - **Floating contact pill**: frosted glass with WhatsApp, Instagram and Call. It appears once you scroll; Call opens both numbers (tap to call, or copy).
 - **Shareable links**: every design has its own URL (`/#/d/<id>`).
