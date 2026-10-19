@@ -1,13 +1,28 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { CloseIcon, InstagramIcon, PhoneIcon, WhatsAppIcon } from "./Icons.jsx";
 import { bookMessage, telUrl, viewUrl, whatsappUrl } from "../links.js";
 
-const ANIM_MS = 300;
-const EASE = "cubic-bezier(0.3, 0.8, 0.3, 1)";
-const BASE = "translateY(-33.3333%)"; // track holds [prev, current, next]; current sits in the middle
-const AXIS_LOCK = 8; // px of movement before we decide vertical vs horizontal
-const SWIPE_V = 70; // px to commit a next/previous swipe
-const SWIPE_H = 90; // px to commit close / follow
+const ANIM_MS = 220;
+const EASE = "cubic-bezier(0.25, 0.8, 0.25, 1)";
+const BASE = "translate3d(0, -33.3333%, 0)"; // track holds [prev, current, next]; current sits in the middle
+const AXIS_LOCK = 8; // px of movement before we decide whether this is a vertical swipe
+const SWIPE_V = 50; // px to commit a next/previous swipe
+const FLICK_V = 0.4; // px/ms: a quick flick commits even over a short distance
+const FLICK_MIN = 14; // px: ...but not a mere twitch
+const PRELOAD = [1, 2, 3, -1, -2]; // designs around the current one to keep decoded and ready
+
+// Held at module level so preloaded images aren't garbage collected before the swipe needs them.
+const preloaded = new Map();
+function preload(url) {
+  if (preloaded.has(url)) return;
+  const img = new Image();
+  img.decoding = "async";
+  img.src = url;
+  img.decode?.().catch(() => {});
+  preloaded.set(url, img);
+}
+const WHEEL_COMMIT = 60; // px of two-finger / wheel scroll that commits a next/previous
+const WHEEL_IDLE = 140; // ms without wheel events = the fingers lifted and momentum is over
 
 // Every slide has the identical layout (actions included) so a photo never changes size when it becomes current.
 function Slide({ design, position, total, site }) {
@@ -52,7 +67,7 @@ function animateTo(el, styles, ms = ANIM_MS) {
 
 /**
  * Instagram-reels style viewer over the whole catalogue (loops forever).
- * Swipe up/down (or wheel / arrow keys) for next/previous, left to close, right to follow on Instagram.
+ * Swipe up for next, down for previous (touch, mouse drag, trackpad two-finger scroll, wheel or arrow keys).
  * Movement is applied straight to the DOM (no React re-render per touch move) so it stays smooth.
  */
 export default function DesignModal({ designs, design, site, onClose, onSelect }) {
@@ -64,13 +79,12 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
   };
   const slides = [at(-1), at(0), at(1)];
 
-  const [toast, setToast] = useState("");
   const sheet = useRef(null);
   const track = useRef(null);
   const closeButton = useRef(null);
   const gesture = useRef(null);
   const busy = useRef(false);
-  const wheelLock = useRef(0);
+  const wheel = useRef({ acc: 0, locked: false, timer: 0 });
   const suppressClick = useRef(false);
 
   // A new design means the slides were re-ordered: snap the track back to centre in the same paint.
@@ -93,11 +107,11 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     };
   }, []);
 
-  // Warm the cache for the designs a swipe away.
+  // Warm (and decode) the photos a few swipes away so the next slide is never blank.
   useEffect(() => {
-    [2, -2].forEach((o) => {
+    PRELOAD.forEach((o) => {
       const d = designs[(index + o + total) % total];
-      if (d) new Image().src = viewUrl(d);
+      if (d) preload(viewUrl(d));
     });
   }, [index, designs, total]);
 
@@ -105,7 +119,7 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     (direction) => {
       if (busy.current) return;
       busy.current = true;
-      animateTo(track.current, { transform: direction > 0 ? "translateY(-66.6667%)" : "translateY(0%)" });
+      animateTo(track.current, { transform: direction > 0 ? "translate3d(0, -66.6667%, 0)" : "translate3d(0, 0%, 0)" });
       setTimeout(() => onSelect(designs[(index + direction + total) % total].id), ANIM_MS);
     },
     [designs, index, total, onSelect]
@@ -114,16 +128,9 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
   const close = useCallback(() => {
     if (busy.current) return;
     busy.current = true;
-    animateTo(sheet.current, { transform: "translateX(-110%)", opacity: "0" }, ANIM_MS - 80);
+    animateTo(sheet.current, { transform: "scale(0.94)", opacity: "0" }, ANIM_MS - 80);
     setTimeout(onClose, ANIM_MS - 80);
   }, [onClose]);
-
-  const follow = useCallback(() => {
-    if (!site) return;
-    setToast(`Opening @${site.instagram} on Instagram…`);
-    setTimeout(() => setToast(""), 2200);
-    window.open(site.instagram_url, "_blank", "noopener,noreferrer");
-  }, [site]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -145,7 +152,7 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
   // ---- pointer gestures (touch + mouse drag) ----
   const onPointerDown = (e) => {
     if (busy.current || (e.pointerType === "mouse" && e.button !== 0)) return;
-    gesture.current = { x: e.clientX, y: e.clientY, axis: null, id: e.pointerId };
+    gesture.current = { x: e.clientX, y: e.clientY, axis: null, id: e.pointerId, t: e.timeStamp, lastY: e.clientY, lastT: e.timeStamp, vy: 0 };
   };
 
   const onPointerMove = (e) => {
@@ -155,19 +162,23 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     const my = e.clientY - g.y;
     if (!g.axis) {
       if (Math.hypot(mx, my) < AXIS_LOCK) return;
-      g.axis = Math.abs(my) > Math.abs(mx) ? "y" : "x";
+      if (Math.abs(mx) > Math.abs(my)) {
+        gesture.current = null; // sideways drags do nothing
+        return;
+      }
+      g.axis = "y";
       sheet.current.setPointerCapture?.(e.pointerId);
       track.current.style.transition = "none";
-      sheet.current.style.transition = "none";
     }
-    if (g.axis === "y") track.current.style.transform = `translateY(calc(-33.3333% + ${my}px))`;
-    else sheet.current.style.transform = `translateX(${mx}px) rotate(${mx / 60}deg)`;
+    // Smoothed vertical velocity (px/ms) so a quick flick can commit without a long drag.
+    const dt = e.timeStamp - g.lastT;
+    if (dt > 0) g.vy = 0.7 * g.vy + 0.3 * ((e.clientY - g.lastY) / dt);
+    g.lastY = e.clientY;
+    g.lastT = e.timeStamp;
+    track.current.style.transform = `translate3d(0, calc(-33.3333% + ${my}px), 0)`;
   };
 
-  const settle = () => {
-    animateTo(track.current, { transform: BASE });
-    animateTo(sheet.current, { transform: "translateX(0px) rotate(0deg)" });
-  };
+  const settle = () => animateTo(track.current, { transform: BASE });
 
   const onPointerUp = (e) => {
     const g = gesture.current;
@@ -176,13 +187,9 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     if (!g.axis) return; // plain tap: let the click through
     suppressClick.current = true; // a drag must not also trigger the link under the finger
     setTimeout(() => (suppressClick.current = false), 0);
-    const mx = e.clientX - g.x;
     const my = e.clientY - g.y;
-    if (g.axis === "y") {
-      if (Math.abs(my) > SWIPE_V) step(my < 0 ? 1 : -1);
-      else settle();
-    } else if (mx < -SWIPE_H) close();
-    else if (mx > SWIPE_H) (follow(), settle());
+    const flick = Math.abs(g.vy) > FLICK_V && Math.abs(my) > FLICK_MIN && Math.sign(g.vy) === Math.sign(my);
+    if (Math.abs(my) > SWIPE_V || flick) step(my < 0 ? 1 : -1);
     else settle();
   };
 
@@ -191,16 +198,28 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     gesture.current = null;
   };
 
-  // Trackpads keep firing wheel events while momentum fades; stay locked until they stop.
+  // Trackpad two-finger scroll / wheel: the card follows the fingers, then commits as soon as you've scrolled far
+  // enough instead of waiting for the gesture to end. After a commit the momentum tail is ignored until it stops.
   const onWheel = (e) => {
-    const now = Date.now();
-    if (now < wheelLock.current) {
-      wheelLock.current = Math.max(wheelLock.current, now + 250);
+    const w = wheel.current;
+    clearTimeout(w.timer);
+    w.timer = setTimeout(() => {
+      const pending = w.acc;
+      w.acc = 0;
+      w.locked = false;
+      if (pending && !busy.current) settle();
+    }, WHEEL_IDLE);
+    if (w.locked || busy.current) return;
+    w.acc += e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+    if (Math.abs(w.acc) >= WHEEL_COMMIT) {
+      const direction = w.acc > 0 ? 1 : -1;
+      w.acc = 0;
+      w.locked = true;
+      step(direction);
       return;
     }
-    if (Math.abs(e.deltaY) < 30) return;
-    wheelLock.current = now + 600;
-    step(e.deltaY > 0 ? 1 : -1);
+    track.current.style.transition = "none";
+    track.current.style.transform = `translate3d(0, calc(-33.3333% - ${w.acc}px), 0)`;
   };
 
   return (
@@ -234,10 +253,8 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
 
       <p className="reel__hint" aria-hidden="true">
         <span>↑ Swipe up for next</span>
-        <span>← Swipe left to close</span>
-        <span>→ Swipe right to follow</span>
+        <span>↓ Swipe down for previous</span>
       </p>
-      {toast && <p className="reel__toast" role="status">{toast}</p>}
     </div>
   );
 }
