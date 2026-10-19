@@ -89,6 +89,28 @@ export default function App() {
           <div className="hero__bg" aria-hidden="true">
             <img src="/hero/bg-cards.webp" alt="" />
           </div>
+          <svg className="brush-defs" aria-hidden="true" focusable="false">
+            <filter id="brush-h" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.03 0.05" numOctaves="2" seed="7" result="wob" />
+              <feDisplacementMap in="SourceGraphic" in2="wob" scale="7" xChannelSelector="R" yChannelSelector="G" result="rough" />
+              <feTurbulence type="fractalNoise" baseFrequency="0.012 0.5" numOctaves="3" seed="11" result="bristle" />
+              <feColorMatrix in="bristle" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  3 0 0 0 -0.45" result="streaks" />
+              <feComposite in="rough" in2="streaks" operator="in" result="brushed" />
+              <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="16" result="grain" />
+              <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.2 0 0 0 0.5" result="chalk" />
+              <feComposite in="brushed" in2="chalk" operator="in" />
+            </filter>
+            <filter id="brush-v" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.03 0.05" numOctaves="2" seed="11" result="wob" />
+              <feDisplacementMap in="SourceGraphic" in2="wob" scale="7" xChannelSelector="R" yChannelSelector="G" result="rough" />
+              <feTurbulence type="fractalNoise" baseFrequency="0.5 0.012" numOctaves="3" seed="15" result="bristle" />
+              <feColorMatrix in="bristle" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  3 0 0 0 -0.45" result="streaks" />
+              <feComposite in="rough" in2="streaks" operator="in" result="brushed" />
+              <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="20" result="grain" />
+              <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.2 0 0 0 0.5" result="chalk" />
+              <feComposite in="brushed" in2="chalk" operator="in" />
+            </filter>
+          </svg>
           <div className="hero__collage">
             <div className="collage__item collage__item--a">
               <img src="/hero/photo-evil-eye.webp" alt="Press-on nails in royal blue and white with evil-eye and snake charms" loading="eager" />

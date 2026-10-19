@@ -2,11 +2,25 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { CloseIcon, InstagramIcon, PhoneIcon, WhatsAppIcon } from "./Icons.jsx";
 import { bookMessage, telUrl, viewUrl, whatsappUrl } from "../links.js";
 
-const ANIM_MS = 300;
-const EASE = "cubic-bezier(0.3, 0.8, 0.3, 1)";
-const BASE = "translateY(-33.3333%)"; // track holds [prev, current, next]; current sits in the middle
+const ANIM_MS = 220;
+const EASE = "cubic-bezier(0.25, 0.8, 0.25, 1)";
+const BASE = "translate3d(0, -33.3333%, 0)"; // track holds [prev, current, next]; current sits in the middle
 const AXIS_LOCK = 8; // px of movement before we decide vertical vs horizontal
-const SWIPE_V = 70; // px to commit a next/previous swipe
+const SWIPE_V = 50; // px to commit a next/previous swipe
+const FLICK_V = 0.4; // px/ms: a quick flick commits even over a short distance
+const FLICK_MIN = 14; // px: ...but not a mere twitch
+const PRELOAD = [1, 2, 3, -1, -2]; // designs around the current one to keep decoded and ready
+
+// Held at module level so preloaded images aren't garbage collected before the swipe needs them.
+const preloaded = new Map();
+function preload(url) {
+  if (preloaded.has(url)) return;
+  const img = new Image();
+  img.decoding = "async";
+  img.src = url;
+  img.decode?.().catch(() => {});
+  preloaded.set(url, img);
+}
 const SWIPE_H = 90; // px to commit close / follow
 
 // Every slide has the identical layout (actions included) so a photo never changes size when it becomes current.
@@ -93,11 +107,11 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     };
   }, []);
 
-  // Warm the cache for the designs a swipe away.
+  // Warm (and decode) the photos a few swipes away so the next slide is never blank.
   useEffect(() => {
-    [2, -2].forEach((o) => {
+    PRELOAD.forEach((o) => {
       const d = designs[(index + o + total) % total];
-      if (d) new Image().src = viewUrl(d);
+      if (d) preload(viewUrl(d));
     });
   }, [index, designs, total]);
 
@@ -105,7 +119,7 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     (direction) => {
       if (busy.current) return;
       busy.current = true;
-      animateTo(track.current, { transform: direction > 0 ? "translateY(-66.6667%)" : "translateY(0%)" });
+      animateTo(track.current, { transform: direction > 0 ? "translate3d(0, -66.6667%, 0)" : "translate3d(0, 0%, 0)" });
       setTimeout(() => onSelect(designs[(index + direction + total) % total].id), ANIM_MS);
     },
     [designs, index, total, onSelect]
@@ -145,7 +159,7 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
   // ---- pointer gestures (touch + mouse drag) ----
   const onPointerDown = (e) => {
     if (busy.current || (e.pointerType === "mouse" && e.button !== 0)) return;
-    gesture.current = { x: e.clientX, y: e.clientY, axis: null, id: e.pointerId };
+    gesture.current = { x: e.clientX, y: e.clientY, axis: null, id: e.pointerId, t: e.timeStamp, lastY: e.clientY, lastT: e.timeStamp, vy: 0 };
   };
 
   const onPointerMove = (e) => {
@@ -160,7 +174,14 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
       track.current.style.transition = "none";
       sheet.current.style.transition = "none";
     }
-    if (g.axis === "y") track.current.style.transform = `translateY(calc(-33.3333% + ${my}px))`;
+    if (g.axis === "y") {
+      // Smoothed vertical velocity (px/ms) so a quick flick can commit without a long drag.
+      const dt = e.timeStamp - g.lastT;
+      if (dt > 0) g.vy = 0.7 * g.vy + 0.3 * ((e.clientY - g.lastY) / dt);
+      g.lastY = e.clientY;
+      g.lastT = e.timeStamp;
+      track.current.style.transform = `translate3d(0, calc(-33.3333% + ${my}px), 0)`;
+    }
     else sheet.current.style.transform = `translateX(${mx}px) rotate(${mx / 60}deg)`;
   };
 
@@ -179,7 +200,8 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
     const mx = e.clientX - g.x;
     const my = e.clientY - g.y;
     if (g.axis === "y") {
-      if (Math.abs(my) > SWIPE_V) step(my < 0 ? 1 : -1);
+      const flick = Math.abs(g.vy) > FLICK_V && Math.abs(my) > FLICK_MIN && Math.sign(g.vy) === Math.sign(my);
+      if (Math.abs(my) > SWIPE_V || flick) step(my < 0 ? 1 : -1);
       else settle();
     } else if (mx < -SWIPE_H) close();
     else if (mx > SWIPE_H) (follow(), settle());
