@@ -55,6 +55,7 @@ function CountUp({ value }) {
 export default function Stats({ stats }) {
   const items = [
     { value: stats.designs, label: "Designs" },
+    { value: stats.customers, label: "Customers" },
     { value: stats.orders_delivered, label: "Orders delivered" },
     { value: stats.states, label: "States across India" },
   ];

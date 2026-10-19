@@ -52,7 +52,7 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 .hero {
   position: relative; overflow: hidden; isolation: isolate;
   /* Full-bleed so the colour glow fades out softly instead of ending at a hard box edge. */
-  padding: clamp(48px, 9vw, 120px) max(var(--gutter), calc((100% - 1200px) / 2 + var(--gutter))) clamp(64px, 9vw, 120px);
+  padding: clamp(48px, 9vw, 120px) max(var(--gutter), calc((100% - 1500px) / 2 + var(--gutter))) clamp(64px, 9vw, 120px);
 }
 .hero::before, .hero::after { content: ""; position: absolute; left: 0; right: 0; z-index: -1; pointer-events: none; }
 .hero::before { top: 0; height: 60px; background: linear-gradient(to bottom, var(--bg), transparent); }
@@ -80,8 +80,9 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 .btn--wa { background: var(--wa); color: #fff; box-shadow: 0 10px 24px -10px rgba(31, 181, 90, 0.7); }
 
 /* ---------- stats ---------- */
-.stats { max-width: 1200px; margin: -12px auto 28px; padding: 0 var(--gutter); }
-.stats__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 18px); }
+.stats { max-width: 1500px; margin: -12px auto 28px; padding: 0 var(--gutter); }
+.stats__row { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 2vw, 18px); }
+@media (min-width: 700px) { .stats__row { grid-template-columns: repeat(4, 1fr); } }
 .stats__item {
   position: relative; display: grid; justify-items: center; align-content: center; gap: 6px;
   padding: clamp(16px, 3vw, 28px) 8px; text-align: center;
@@ -98,7 +99,7 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 .stats__note { margin-top: 16px; text-align: center; color: var(--muted); font-size: 0.92rem; }
 
 /* ---------- offer ---------- */
-.offer { max-width: 1200px; margin: 0 auto 36px; padding: 0 var(--gutter); }
+.offer { max-width: 1500px; margin: 0 auto 36px; padding: 0 var(--gutter); }
 .offer__inner {
   display: grid; gap: 22px; padding: clamp(22px, 5vw, 44px); border-radius: 28px;
   background: linear-gradient(135deg, #ffe1ee 0%, #efe6ff 100%); border: 1px solid #f6d3e6;
@@ -114,7 +115,7 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 @media (min-width: 900px) { .offer__inner { grid-template-columns: 1.4fr 1fr; align-items: center; gap: 40px; } }
 
 /* ---------- catalogue ---------- */
-.catalogue { max-width: 1200px; margin: 0 auto; padding: 24px var(--gutter) 64px; }
+.catalogue { max-width: 1500px; margin: 0 auto; padding: 24px var(--gutter) 64px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 .section-head h2 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; }
 .section-head p { color: var(--muted); }
@@ -165,7 +166,7 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* ---------- footer + sticky cta ---------- */
-.footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px var(--gutter) 36px; max-width: 1200px; margin: 0 auto; color: var(--muted); font-size: 0.9rem; }
+.footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px var(--gutter) 36px; max-width: 1500px; margin: 0 auto; color: var(--muted); font-size: 0.9rem; }
 .footer a:hover { color: var(--pink); }
 
 /* ---------- floating contact pill ---------- */
@@ -362,7 +363,7 @@ button:disabled { opacity:.35; cursor:default; }
 .collections-skeleton .card--skeleton { flex: 0 0 clamp(240px, 28vw, 305px); }
 
 /* ---------- about ---------- */
-.about { max-width: 1200px; margin: 0 auto 56px; padding: 0 var(--gutter); display: grid; gap: 28px; }
+.about { max-width: 1500px; margin: 0 auto 56px; padding: 0 var(--gutter); display: grid; gap: 28px; }
 .about__copy h2 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; margin-bottom: 14px; }
 .about__lead { color: #5a4552; font-size: 1.05rem; max-width: 52ch; margin-bottom: 12px; }
 .about__copy .btn { margin-top: 10px; }
