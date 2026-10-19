@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchCatalogue } from "./supabase.js";
 import { SITE as site } from "./site.js";
 import StyleGallery from "./components/StyleGallery.jsx";
@@ -20,6 +20,9 @@ export default function App() {
   const [data, setData] = useState(null); // { collections, designs } once loaded
   const [category, setCategory] = useState("All");
   const [openId, setOpenId] = useState(designIdFromHash);
+  const [active, setActive] = useState(null); // which nav item matches the part of the page in view
+  const heroRef = useRef(null);
+  const coverRef = useRef(null);
 
   // Designs live in Supabase. If it is slow, unreachable or empty, show the bundled copy so the site never goes blank.
   useEffect(() => {
@@ -38,6 +41,57 @@ export default function App() {
     const onHash = () => setOpenId(designIdFromHash());
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  // Scroll effects: (1) the hero stays pinned and tilts/fades as the rest of the page slides up over it,
+  // (2) the nav highlights Designs / About depending on what is on screen.
+  useEffect(() => {
+    const hero = heroRef.current;
+    const cover = coverRef.current;
+    const nav = document.querySelector(".nav");
+    let frame = 0;
+
+    const pin = () => {
+      // Pin the hero under the nav; if it is taller than the screen, pin its bottom edge so nothing is cut off.
+      const top = Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight);
+      hero.style.top = `${top}px`;
+    };
+
+    const update = () => {
+      frame = 0;
+      const vh = window.innerHeight;
+      const navH = nav.offsetHeight;
+      const p = Math.min(1, Math.max(0, (vh - cover.getBoundingClientRect().top) / (vh - navH)));
+      hero.style.setProperty("--p", p.toFixed(3));
+
+      const line = vh * 0.4;
+      const designs = document.getElementById("designs");
+      const about = document.getElementById("about");
+      const atBottom = vh + window.scrollY >= document.documentElement.scrollHeight - 8;
+      const next = atBottom || about?.getBoundingClientRect().top <= line ? "about" : designs?.getBoundingClientRect().top <= line ? "designs" : null;
+      setActive((prev) => (prev === next ? prev : next));
+    };
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    const onResize = () => {
+      pin();
+      onScroll();
+    };
+
+    pin();
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    const observer = new ResizeObserver(onResize);
+    observer.observe(hero);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
   }, []);
 
   const open = useCallback((d) => {
@@ -69,8 +123,12 @@ export default function App() {
           nailsbyroops<span>_</span>
         </a>
         <nav>
-          <a href="#designs">Designs</a>
-          <a href="#about">About</a>
+          <a href="#designs" className={active === "designs" ? "is-active" : ""} aria-current={active === "designs" ? "true" : undefined}>
+            Designs
+          </a>
+          <a href="#about" className={active === "about" ? "is-active" : ""} aria-current={active === "about" ? "true" : undefined}>
+            About
+          </a>
           {site && (
             <a href={whatsappUrl(site, bookMessage())} target="_blank" rel="noreferrer">
               Book
@@ -85,7 +143,7 @@ export default function App() {
       </header>
 
       <main id="top">
-        <section className="hero">
+        <section className="hero" ref={heroRef}>
           <div className="hero__blob hero__blob--a" />
           <div className="hero__blob hero__blob--b" />
           <div className="hero__bg" aria-hidden="true">
@@ -143,6 +201,7 @@ export default function App() {
           </div>
         </section>
 
+        <div className="cover" ref={coverRef}>
         {site && <Stats stats={site.stats} />}
         {site && <Offer site={site} />}
 
@@ -171,7 +230,7 @@ export default function App() {
         </section>
 
         <About site={site} />
-
+        </div>
       </main>
 
       <footer className="footer">

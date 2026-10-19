@@ -41,8 +41,11 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 }
 .nav__brand { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; letter-spacing: -0.03em; }
 .nav__brand span { color: var(--pink); }
-.nav nav { display: flex; align-items: center; gap: 22px; font-weight: 500; font-size: 0.95rem; }
+.nav nav { display: flex; align-items: center; gap: 4px; font-weight: 500; font-size: 0.95rem; }
+.nav nav a:not(.nav__ig) { padding: 8px 14px; border-radius: 999px; transition: background 0.3s, color 0.3s; }
 .nav nav a:not(.nav__ig):hover { color: var(--pink); }
+.nav nav a.is-active { background: var(--pink-soft); color: #b4235f; font-weight: 700; }
+.nav nav .nav__ig { margin-left: 8px; }
 .nav__ig { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); }
 
 /* ---------- hero ---------- */
@@ -371,7 +374,9 @@ button:disabled { opacity:.35; cursor:default; }
 
 @media (max-width: 430px) {
   .nav__brand { font-size: 1.1rem; }
-  .nav nav { gap: 14px; font-size: 0.88rem; }
+  .nav nav { gap: 0; font-size: 0.88rem; }
+  .nav nav a:not(.nav__ig) { padding: 7px 10px; }
+  .nav nav .nav__ig { margin-left: 6px; }
   .nav__ig { width: 36px; height: 36px; }
 }
 
@@ -379,3 +384,22 @@ button:disabled { opacity:.35; cursor:default; }
 .stats__item .count { display: inline-grid; justify-items: center; font-variant-numeric: tabular-nums; }
 .stats__item .count i { grid-area: 1 / 1; font-style: normal; }
 .stats__item .count__final { visibility: hidden; }
+
+/* ---------- 3D "slide over" scroll effect ---------- */
+.hero {
+  position: sticky; top: 0; z-index: 0; /* top is set from JS so a tall hero is never cut off */
+  min-height: calc(100svh - 112px);
+  transform-origin: 50% 100%;
+  transform: perspective(1400px) translate3d(0, calc(var(--p, 0) * 60px), 0) scale(calc(1 - var(--p, 0) * 0.12)) rotateX(calc(var(--p, 0) * 7deg));
+  opacity: calc(1 - var(--p, 0) * 0.7);
+  will-change: transform, opacity;
+}
+.cover {
+  position: relative; z-index: 1; background: var(--bg); padding-top: 36px;
+  border-radius: 36px 36px 0 0; box-shadow: 0 -34px 70px -28px rgba(120, 40, 80, 0.35);
+}
+.cover .stats { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .hero { position: relative; top: auto !important; transform: none; opacity: 1; min-height: 0; }
+  .cover { box-shadow: none; }
+}
