@@ -7,5 +7,5 @@ export const SITE = {
   phones: ["7417191057", "7830110057"],
   // WhatsApp needs the country code (91 = India).
   whatsapp: "917417191057",
-  stats: { designs: "130+", customers: "175+", orders_delivered: "850+", states: "15+" },
+  stats: { designs: "130+", customers: "175+", orders_delivered: "550+", states: "15+" },
 };

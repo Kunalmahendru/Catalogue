@@ -8,6 +8,7 @@ import ContactPill from "./components/ContactPill.jsx";
 import Stats from "./components/Stats.jsx";
 import Offer from "./components/Offer.jsx";
 import About from "./components/About.jsx";
+import BoxContents from "./components/BoxContents.jsx";
 import { InstagramIcon, WhatsAppIcon } from "./components/Icons.jsx";
 import { bookMessage, whatsappUrl } from "./links.js";
 
@@ -248,6 +249,7 @@ export default function App() {
           )}
         </section>
 
+        <BoxContents />
         <About site={site} />
         </div>
       </main>
