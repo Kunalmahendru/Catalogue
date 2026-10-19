@@ -93,9 +93,11 @@ export default function App() {
     // and no scroll listener at all. The script only works out where to pin it when the window size changes.
     // The same pinning now also runs on phones and tablets (CSS below); only "reduce motion" turns it off.
     const mq = window.matchMedia("(prefers-reduced-motion: no-preference)");
+    const desktop = window.matchMedia("(min-width: 1000px) and (hover: hover)");
     const pin = () => {
-      // Pin under the nav; if the hero is taller than the screen, pin its bottom edge so nothing is cut off.
-      hero.style.top = `${Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight)}px`;
+      // Phones: the hero always rests right under the nav and never moves; the page just slides over it.
+      // Desktop: pin under the nav, or pin the hero's bottom edge if it is taller than the screen so nothing is cut off.
+      hero.style.top = `${desktop.matches ? Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight) : nav.offsetHeight}px`;
     };
     let observer = null;
     const sync = () => {
@@ -275,10 +277,10 @@ export default function App() {
             @{site.instagram}
           </a>
         )}
+        <BackToTop />
       </footer>
 
       {site && <ContactPill site={site} />}
-      <BackToTop />
 
       {openDesign && <DesignModal designs={sequence} design={openDesign} site={site} onClose={close} onSelect={select} />}
     </>
