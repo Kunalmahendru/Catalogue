@@ -7,6 +7,7 @@ import AddPhotos from "./AddPhotos.jsx";
 import ChangePassword from "./ChangePassword.jsx";
 import { toId } from "./ids.js";
 import { buildPlan, flatten, publish, validate } from "./publish.js";
+import { withAutoTitles } from "../titles.js";
 
 // Inputs and buttons inside a draggable card must not start a drag.
 const noDrag = {
@@ -16,7 +17,7 @@ const noDrag = {
   onKeyDown: (e) => e.stopPropagation(),
 };
 
-function PhotoCard({ d, others, onFave, onDelete, onMove, onTitle }) {
+function PhotoCard({ d, others, onFave, onDelete, onMove }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: "d:" + d.id,
     data: { type: "design", collection: d.collection },
@@ -34,19 +35,7 @@ function PhotoCard({ d, others, onFave, onDelete, onMove, onTitle }) {
           ✕
         </button>
       </div>
-           <input
-        className="adm-title"
-        defaultValue={d.title}
-        key={d.title}
-        aria-label="Photo title"
-        onBlur={(e) => e.target.value.trim() !== d.title && onTitle(d, e.target.value.trim())}
-        {...noDrag}
-        // Must come after noDrag: stops the drag handler on the card from taking the space bar while typing.
-        onKeyDown={(e) => {
-          e.stopPropagation();
-          if (e.key === "Enter") e.target.blur();
-        }}
-      />
+           <figcaption className="adm-title" title="Named automatically from the section heading">{d.title}</figcaption>
       {others.length > 0 && (
         <select className="adm-move" value="" onChange={(e) => e.target.value && onMove(d, e.target.value)} aria-label="Move to another collection" {...noDrag}>
           <option value="">Move to…</option>
@@ -144,6 +133,7 @@ function ReviewModal({ plan, busy, progress, error, onCancel, onConfirm }) {
             </li>
           ))}
         </ul>
+        <p className="adm-muted">Photo names update automatically from the section heading (Heading · 01, 02…).</p>
         {destructive && <p className="adm-error">Deleted photos and sections can't be brought back.</p>}
         {error && <p className="adm-error">{error}</p>}
         <footer>
@@ -201,7 +191,15 @@ export default function Editor({ email }) {
     load();
   }, [load]);
 
-  const plan = useMemo(() => (server ? buildPlan(server, cols, designs) : null), [server, cols, designs]);
+  // Photo names always follow the section heading and position ("Heading · 01", "02"...).
+  const titled = useMemo(() => {
+    const nameOf = Object.fromEntries(cols.map((c) => [c.key, c.name]));
+    const ordered = flatten(cols, designs);
+    const named = Object.fromEntries(withAutoTitles(ordered, (d) => nameOf[d.collection]).map((d) => [d.id, d.title]));
+    return designs.map((d) => ({ ...d, title: named[d.id] ?? d.title }));
+  }, [cols, designs]);
+
+  const plan = useMemo(() => (server ? buildPlan(server, cols, titled) : null), [server, cols, titled]);
   const dirty = !!plan && plan.count > 0;
 
   // Warn before leaving with unpublished changes.
@@ -280,7 +278,6 @@ export default function Editor({ email }) {
 
   // ---- photos ----
   const toggleFave = (d) => setDesigns((prev) => prev.map((x) => (x.id === d.id ? { ...x, featured: !x.featured } : x)));
-  const setTitle = (d, title) => title && setDesigns((prev) => prev.map((x) => (x.id === d.id ? { ...x, title } : x)));
   const moveDesign = (d, toKey) => setDesigns((prev) => [...prev.filter((x) => x.id !== d.id), { ...d, collection: toKey }]);
   const deleteDesign = (d) => {
     if (d.previewUrl) URL.revokeObjectURL(d.previewUrl);
@@ -289,11 +286,10 @@ export default function Editor({ email }) {
 
   const stagePhotos = (colKey, staged) => {
     const col = cols.find((c) => c.key === colKey);
-    const count = designs.filter((d) => d.collection === colKey).length;
     const stamp = Date.now().toString(36);
     const rows = staged.map((s, i) => ({
       id: `photo-${stamp}${i}`,
-      title: `${col.name} · ${String(count + i + 1).padStart(2, "0")}`,
+      title: "",
       collection: colKey,
       description: "",
       image: s.image,
@@ -320,7 +316,7 @@ export default function Editor({ email }) {
     setPublishing(true);
     setPublishError("");
     try {
-      await publish(server, cols, designs, setProgress);
+      await publish(server, cols, titled, setProgress);
       designs.forEach((d) => d.previewUrl && URL.revokeObjectURL(d.previewUrl));
       await load();
       setReviewing(false);
@@ -398,7 +394,7 @@ export default function Editor({ email }) {
               <CollectionBlock
                 key={c.key}
                 c={c}
-                items={designs.filter((d) => d.collection === c.key)}
+                items={titled.filter((d) => d.collection === c.key)}
                 allCols={cols}
                 compact={compact}
                 justAdded={justAdded === c.key}
@@ -409,7 +405,6 @@ export default function Editor({ email }) {
                 onFave={toggleFave}
                 onDelete={deleteDesign}
                 onMove={moveDesign}
-                onTitle={setTitle}
               />
             ))}
           </main>

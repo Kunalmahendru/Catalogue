@@ -162,6 +162,9 @@ One-time setup:
 2. Create the admin user (Authentication -> Users -> Add user, tick *Auto Confirm User*) and add its email to the
    `admin_emails` table. Optional but wise: Authentication -> Sign In / Providers -> turn off *Allow new users to sign up*.
 
+Photo names are automatic: every photo is called `<section heading> · 01`, `02`, … in the order it appears, so renaming a
+heading renames everything inside it (the live site uses the same rule). Nothing needs typing per photo.
+
 New photos are cropped to the standard 4:5 in the browser (plain borders trimmed, drag to adjust, slider to zoom) and
 uploaded as WebP when you publish. A section can only be deleted when it is empty.
 

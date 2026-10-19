@@ -74,7 +74,6 @@ export function buildPlan(server, cols, designs) {
     const was = [...mine].sort((a, b) => serverDes[a.id].sort_order - serverDes[b.id].sort_order).map((d) => d.id);
     if (was.join() !== mine.map((d) => d.id).join()) add("edit", `Reorder the photos in “${c.name}”`);
   });
-  flat.filter((d) => !d.isNew && serverDes[d.id] && serverDes[d.id].title !== d.title).forEach((d) => add("edit", `Rename photo “${serverDes[d.id].title}” → “${d.title}”`));
   flat.filter((d) => !d.isNew && serverDes[d.id] && !!serverDes[d.id].featured !== !!d.featured).forEach((d) => add("edit", `${d.featured ? "Add" : "Remove"} the Fave badge on “${d.title}”`));
   delCols.forEach((c) => add("remove", `Delete section “${c.name}”`));
 
@@ -114,6 +113,10 @@ export async function publish(server, cols, designs, onProgress = () => {}) {
     throw e;
   }
 
+  // 1b. sections being removed that are already empty on the server go first, so a section can take over their name
+  const early = plan.delCols.filter((c) => !server.designs.some((d) => d.collection === c.name));
+  if (early.length) check(await supabase.from("collections").delete().in("name", early.map((c) => c.name)));
+
   // 2. renames (two steps so swapping two names can't collide; photos follow automatically)
   if (plan.renamed.length) {
     onProgress("Renaming sections…");
@@ -144,9 +147,10 @@ export async function publish(server, cols, designs, onProgress = () => {}) {
     check(await supabase.from("designs").delete().in("id", plan.delDesigns.map((d) => d.id)));
     check(await supabase.storage.from(BUCKET).remove(plan.delDesigns.flatMap((d) => [`thumbs/${d.image}`, `view/${d.image}`])));
   }
-  if (plan.delCols.length) {
+  const late = plan.delCols.filter((c) => !early.includes(c));
+  if (late.length) {
     onProgress("Deleting sections…");
-    check(await supabase.from("collections").delete().in("name", plan.delCols.map((c) => c.name)));
+    check(await supabase.from("collections").delete().in("name", late.map((c) => c.name)));
   }
   return plan;
 }

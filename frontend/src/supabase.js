@@ -1,5 +1,7 @@
 // Reads the catalogue straight from Supabase with the public, read-only (publishable) key.
 // Row-level security on the tables means this key can only read, never change anything.
+import { withAutoTitles } from "./titles.js";
+
 const URL = (import.meta.env.VITE_SUPABASE_URL || "").replace(/\/$/, "");
 const KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 const BUCKET = "nails";
@@ -28,7 +30,7 @@ export async function fetchCatalogue(timeoutMs = 3500) {
     const [collections, designs] = await Promise.all([rows("collections", controller.signal), rows("designs", controller.signal)]);
     return {
       collections: collections.map((c) => ({ name: c.name, description: c.description || "" })),
-      designs: designs.map((d) => ({
+      designs: withAutoTitles(designs.map((d) => ({
         id: d.id,
         title: d.title,
         category: d.collection,
@@ -38,7 +40,7 @@ export async function fetchCatalogue(timeoutMs = 3500) {
         price: d.price,
         tags: d.tags || [],
         featured: !!d.featured,
-      })),
+      })), (d) => d.category),
     };
   } finally {
     clearTimeout(timer);

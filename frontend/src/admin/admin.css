@@ -58,7 +58,7 @@
 .adm-fave { left: 6px; color: #9a8890; }
 .adm-fave.is-on { color: #f59e0b; }
 .adm-del { right: 6px; color: #b4235f; }
-.adm .adm-title { font-size: 0.8rem; padding: 6px 8px; width: 100%; }
+.adm .adm-title { font-size: 0.8rem; font-weight: 600; padding: 2px 4px; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .adm .adm-move { font-size: 0.78rem; padding: 6px 8px; width: 100%; color: var(--muted); }
 .adm-empty { grid-column: 1 / -1; padding: 18px; text-align: center; border: 1.5px dashed var(--line); border-radius: 14px; }
 
