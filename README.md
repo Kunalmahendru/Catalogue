@@ -78,6 +78,7 @@ Production is just two things:
 │   │   ├── site.js            contact details and homepage numbers
 │   │   ├── catalogue.json     bundled fallback catalogue
 │   │   ├── supabase.js        fetches collections + designs
+│   │   ├── admin/             /admin page: login, draft editor, review & publish
 │   │   └── components/        About, ContactPill, DesignModal (reel), StyleGallery, ...
 │   ├── public/hero/           landing photos
 │   ├── public/photos/         thumbs/ (cards) and view/ (viewer) WebP images
