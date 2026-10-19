@@ -1,7 +1,29 @@
+# Dependencies
 node_modules/
-dist/
 .venv/
+venv/
+
+# Build output and caches
+dist/
+build/
+.vite/
+.vercel/
 __pycache__/
+*.pyc
+.pytest_cache/
+.cache/
+
+# Secrets: never commit real keys (the *.example files are fine)
 .env
+.env.*
+!.env.example
+
+# Logs
 *.log
+npm-debug.log*
+
+# Editors, OS and tool folders
 .DS_Store
+.idea/
+.vscode/
+.claude/
