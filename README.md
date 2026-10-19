@@ -22,7 +22,7 @@ Browse every look, flick through them reel-style, and book on WhatsApp in one ta
 
 **nailsbyroops_** makes premium handmade press-on nails: salon-style nail art you can put on at home, reuse, and wear to
 match your mood. From a quiet French tip to a full 3D-charm moment, there is a set for every look. Custom designs and
-wholesale / bulk orders are always welcome, and **175+ customers** and **850+ orders** across **15+ states**.
+wholesale / bulk orders are always welcome, and **175+ customers** and **550+ orders** across **15+ states**.
 
 This repository is the website: a mobile-first catalogue where customers browse collections, tap a look, and book
 it straight on WhatsApp (the message already names the design and links to its photo). There is also an **About** section
@@ -37,7 +37,8 @@ Find the brand on Instagram: [@nailsbyroops_](https://instagram.com/nailsbyroops
 - **Reel-style viewer**: tap any photo to open a centered card that loops through *all* designs.
   Swipe up for next, down for previous. On desktop use a trackpad two-finger scroll, the mouse wheel or drag, the ▲▼
   buttons or the arrow keys (Esc or ✕ closes). The card follows your fingers, quick flicks commit instantly and neighbouring photos are preloaded.
-- **Book this look**: opens WhatsApp with the design name and a link to its photo.
+- **Book this look**: opens WhatsApp with a short message naming the design.
+- **What's in the box**: your real kit photo with dashed outlines and numbered markers, a legend explaining each item (glue tabs, alcohol pad, nail file, cuticle stick, buffer, nail glue) and a FREE sticker. Hover or tap a legend row to light up its outline. Edit names, text and outline positions in `frontend/src/components/BoxContents.jsx`; the photo is `frontend/public/box/kit.webp`.
 - **Floating contact pill**: frosted glass with WhatsApp, Instagram and Call. It appears once you scroll; Call opens both numbers (tap to call, or copy).
 - **Shareable links**: every design has its own URL (`/#/d/<id>`).
 - **Always online**: designs and photos come from Supabase, with a bundled copy as a fallback so the page never goes blank.

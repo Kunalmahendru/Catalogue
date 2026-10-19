@@ -8,6 +8,7 @@ import ContactPill from "./components/ContactPill.jsx";
 import Stats from "./components/Stats.jsx";
 import Offer from "./components/Offer.jsx";
 import About from "./components/About.jsx";
+import BoxContents from "./components/BoxContents.jsx";
 import { InstagramIcon, WhatsAppIcon } from "./components/Icons.jsx";
 import { bookMessage, whatsappUrl } from "./links.js";
 
@@ -43,73 +44,81 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  // Scroll effects: (1) the hero stays pinned and tilts/fades as the rest of the page slides up over it,
-  // (2) the nav highlights Designs / About depending on what is on screen.
+  // Scroll behaviour, written so it costs almost nothing while scrolling:
+  //  - nav highlight: IntersectionObserver (no scroll listener, no layout reads);
+  //  - hero stays pinned on desktop while the page slides over it (pure CSS sticky, nothing runs per frame).
   useEffect(() => {
     const hero = heroRef.current;
     const cover = coverRef.current;
     const nav = document.querySelector(".nav");
-    let frame = 0;
-    // After a click on Designs / About the highlight must jump straight there, not wait for the smooth scroll to arrive.
+
+    // ---- nav highlight ----
+    // After a click on Designs / About the highlight jumps there at once and holds while the page scrolls to it.
     let forced = null;
     let lockUntil = 0;
-
-    const pin = () => {
-      // Pin the hero under the nav; if it is taller than the screen, pin its bottom edge so nothing is cut off.
-      const top = Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight);
-      hero.style.top = `${top}px`;
-    };
-
-    const update = () => {
-      frame = 0;
-      const vh = window.innerHeight;
-      const navH = nav.offsetHeight;
-      const p = Math.min(1, Math.max(0, (vh - cover.getBoundingClientRect().top) / (vh - navH)));
-      hero.style.setProperty("--p", p.toFixed(3));
-
+    // A section counts as "reached" once its top has risen above the 60%-down mark of the screen; the highlighted nav
+    // item is the last section reached. State per section: "below" (not reached yet) | "in" | "past".
+    const pos = { designs: "below", box: "below", about: "below" };
+    const apply = () => {
       if (forced && performance.now() < lockUntil) return;
       forced = null;
-      const line = vh * 0.4;
-      const designs = document.getElementById("designs");
-      const about = document.getElementById("about");
-      const atBottom = vh + window.scrollY >= document.documentElement.scrollHeight - 8;
-      const next = atBottom || about?.getBoundingClientRect().top <= line ? "about" : designs?.getBoundingClientRect().top <= line ? "designs" : null;
+      const next = pos.about !== "below" ? "about" : pos.box !== "below" ? "box" : pos.designs !== "below" ? "designs" : null;
       setActive((prev) => (prev === next ? prev : next));
     };
+    const band = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) pos[e.target.id] = e.isIntersecting ? "in" : e.boundingClientRect.top > 0 ? "below" : "past";
+        apply();
+      },
+      { rootMargin: "0px 0px -40% 0px" } // shrinks the bottom of the screen by 40%: the 60%-down mark
+    );
+    for (const id of ["designs", "box", "about"]) band.observe(document.getElementById(id));
 
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
     const onNavClick = (e) => {
-      const link = e.target.closest?.('a[href="#designs"], a[href="#about"]');
+      const link = e.target.closest?.('a[href="#designs"], a[href="#box"], a[href="#about"]');
       if (!link) return;
       forced = link.getAttribute("href").slice(1);
       lockUntil = performance.now() + 2200;
       setActive(forced);
     };
     const unlock = () => {
-      lockUntil = 0; // the visitor took over scrolling: go back to following the page
+      lockUntil = 0; // the visitor took over scrolling: follow the page again
     };
-    const onResize = () => {
-      pin();
-      onScroll();
-    };
-
-    pin();
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
     document.addEventListener("click", onNavClick);
     for (const type of ["wheel", "touchstart", "keydown"]) window.addEventListener(type, unlock, { passive: true });
-    const observer = new ResizeObserver(onResize);
-    observer.observe(hero);
+
+    // ---- pinned hero (desktop with a mouse only; phones keep a plain, light page) ----
+    // The hero just stays where it is while the rest of the page slides up over it: no scaling, tilting or fading,
+    // and no scroll listener at all. The script only works out where to pin it when the window size changes.
+    const mq = window.matchMedia("(min-width: 1000px) and (hover: hover) and (prefers-reduced-motion: no-preference)");
+    const pin = () => {
+      // Pin under the nav; if the hero is taller than the screen, pin its bottom edge so nothing is cut off.
+      hero.style.top = `${Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight)}px`;
+    };
+    let observer = null;
+    const sync = () => {
+      if (mq.matches && !observer) {
+        pin();
+        window.addEventListener("resize", pin);
+        observer = new ResizeObserver(pin);
+        observer.observe(hero);
+      } else if (!mq.matches && observer) {
+        window.removeEventListener("resize", pin);
+        observer.disconnect();
+        observer = null;
+        hero.style.top = "";
+      }
+    };
+    sync();
+    mq.addEventListener("change", sync);
+
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
+      band.disconnect();
       document.removeEventListener("click", onNavClick);
       for (const type of ["wheel", "touchstart", "keydown"]) window.removeEventListener(type, unlock);
-      observer.disconnect();
-      cancelAnimationFrame(frame);
+      mq.removeEventListener("change", sync);
+      window.removeEventListener("resize", pin);
+      observer?.disconnect();
     };
   }, []);
 
@@ -144,6 +153,10 @@ export default function App() {
         <nav>
           <a href="#designs" className={active === "designs" ? "is-active" : ""} aria-current={active === "designs" ? "true" : undefined}>
             Designs
+          </a>
+          <a href="#box" className={active === "box" ? "is-active" : ""} aria-current={active === "box" ? "true" : undefined}>
+            <span className="nav__long">What’s in the box</span>
+            <span className="nav__short">Box</span>
           </a>
           <a href="#about" className={active === "about" ? "is-active" : ""} aria-current={active === "about" ? "true" : undefined}>
             About
@@ -248,6 +261,7 @@ export default function App() {
           )}
         </section>
 
+        <BoxContents />
         <About site={site} />
         </div>
       </main>

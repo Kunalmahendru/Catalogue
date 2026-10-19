@@ -3,6 +3,8 @@ import { CloseIcon, InstagramIcon, PhoneIcon, WhatsAppIcon } from "./Icons.jsx";
 import { bookMessage, telUrl, viewUrl, whatsappUrl } from "../links.js";
 
 const ANIM_MS = 220;
+const CLOSE_MS = 300; // closing is a little slower and fades everything together, so it never looks abrupt
+const CLOSE_EASE = "cubic-bezier(0.33, 0, 0.2, 1)";
 const EASE = "cubic-bezier(0.25, 0.8, 0.25, 1)";
 const BASE = "translate3d(0, -33.3333%, 0)"; // track holds [prev, current, next]; current sits in the middle
 const AXIS_LOCK = 8; // px of movement before we decide whether this is a vertical swipe
@@ -57,8 +59,8 @@ function Slide({ design, position, total, site }) {
 }
 
 // Animate an element to the given inline styles, then drop the transition so dragging stays 1:1 with the finger.
-function animateTo(el, styles, ms = ANIM_MS) {
-  el.style.transition = `transform ${ms}ms ${EASE}, opacity ${ms}ms`;
+function animateTo(el, styles, ms = ANIM_MS, ease = EASE) {
+  el.style.transition = `transform ${ms}ms ${ease}, opacity ${ms}ms ${ease}`;
   Object.assign(el.style, styles);
   setTimeout(() => {
     el.style.transition = "none";
@@ -82,6 +84,7 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
   const sheet = useRef(null);
   const track = useRef(null);
   const closeButton = useRef(null);
+  const root = useRef(null);
   const gesture = useRef(null);
   const busy = useRef(false);
   const wheel = useRef({ acc: 0, locked: false, timer: 0 });
@@ -128,8 +131,9 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
   const close = useCallback(() => {
     if (busy.current) return;
     busy.current = true;
-    animateTo(sheet.current, { transform: "scale(0.94)", opacity: "0" }, ANIM_MS - 80);
-    setTimeout(onClose, ANIM_MS - 80);
+    root.current?.classList.add("is-closing"); // fades the dim background and the buttons (CSS)
+    animateTo(sheet.current, { transform: "translate3d(0, 18px, 0) scale(0.95)", opacity: "0" }, CLOSE_MS, CLOSE_EASE);
+    setTimeout(onClose, CLOSE_MS);
   }, [onClose]);
 
   useEffect(() => {
@@ -223,7 +227,7 @@ export default function DesignModal({ designs, design, site, onClose, onSelect }
   };
 
   return (
-    <div className="reel" role="dialog" aria-modal="true" aria-label={design.title} onClick={close}>
+    <div className="reel" ref={root} role="dialog" aria-modal="true" aria-label={design.title} onClick={close}>
       <button className="reel__close" ref={closeButton} onClick={(e) => (e.stopPropagation(), close())} aria-label="Close">
         <CloseIcon />
       </button>
