@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
-SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
+# Public (read-only) key. Supabase now calls it the "publishable" key; the older name "anon" still works.
+# The secret key is deliberately NOT read here: the live API never needs write access.
+SUPABASE_KEY = os.getenv("SUPABASE_PUBLISHABLE_KEY") or os.getenv("SUPABASE_ANON_KEY", "")
 CORS_ORIGINS = [
     o.strip()
     for o in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
@@ -25,4 +27,4 @@ SITE = {
     "stats": {"orders_delivered": "1500+", "states": "15+", "designs": "130+"},
 }
 
-USE_SUPABASE = bool(SUPABASE_URL and SUPABASE_ANON_KEY)
+USE_SUPABASE = bool(SUPABASE_URL and SUPABASE_KEY)

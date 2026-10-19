@@ -3,19 +3,26 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class Collection(BaseModel):
+    name: str
+    description: str = ""
+
+
 class Design(BaseModel):
     id: str
     title: str
-    category: str
+    category: str  # the collection this design belongs to
     description: str = ""
-    # Real photo URL (Supabase Storage). If empty, the site draws an illustration from `palette`.
-    image_url: Optional[str] = None
-    palette: List[str] = Field(default_factory=lambda: ["#f9a8d4", "#c4b5fd"])
-    # Leave empty to show "DM for price".
-    price: Optional[int] = None
-    duration: Optional[str] = None
+    thumb_url: str  # small copy for catalogue cards
+    view_url: str  # large copy for the viewer and the WhatsApp message
+    price: Optional[int] = None  # None = no price shown
     tags: List[str] = Field(default_factory=list)
     featured: bool = False
+
+
+class Catalogue(BaseModel):
+    collections: List[Collection]
+    designs: List[Design]
 
 
 class Stats(BaseModel):

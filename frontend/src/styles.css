@@ -285,6 +285,7 @@ button:disabled { opacity:.35; cursor:default; }
 .reel__actions .btn--wa { grid-column: 1 / -1; }
 .reel__actions .btn { min-height: 44px; }
 .reel__nav { display: none; }
+@media (max-width: 799px) { .reel__desc { display: none; } .reel__info { gap: 10px; } }
 .reel__hint {
   position: fixed; top: max(16px, env(safe-area-inset-top)); left: 0; right: 72px; z-index: 2; pointer-events: none;
   display: flex; flex-direction: column; gap: 3px; padding: 0 20px; align-items: flex-start;
@@ -342,3 +343,6 @@ button:disabled { opacity:.35; cursor:default; }
 }
 }
 }
+
+.collections-skeleton { display: flex; gap: 18px; overflow: hidden; margin-top: 24px; }
+.collections-skeleton .card--skeleton { flex: 0 0 clamp(240px, 28vw, 305px); }
