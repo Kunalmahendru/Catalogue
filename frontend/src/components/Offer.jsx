@@ -1,7 +1,7 @@
 import { WhatsAppIcon } from "./Icons.jsx";
 import { bulkMessage, whatsappUrl } from "../links.js";
 
-const PERKS = ["Reusable press-ons", "Premium quality", "Customized designs made for you", "Bulk orders welcome", "Wholesale available"];
+const PERKS = ["Reusable press-ons", "Premium quality", "Customized designs made for you", "Share any design on WhatsApp", "Bulk orders welcome", "Wholesale available"];
 
 export default function Offer({ site }) {
   return (
