@@ -38,7 +38,7 @@ Find the brand on Instagram: [@nailsbyroops_](https://instagram.com/nailsbyroops
   Swipe up for next, down for previous. On desktop use a trackpad two-finger scroll, the mouse wheel or drag, the ▲▼
   buttons or the arrow keys (Esc or ✕ closes). The card follows your fingers, quick flicks commit instantly and neighbouring photos are preloaded.
 - **Book this look**: opens WhatsApp with a short message naming the design.
-- **What's in the box**: six illustrated items in a row (buffer, nail file, cuticle stick, nail glue, glue tabs, alcohol pad) with a line under each. They glide in on scroll. Edit the names and text in `frontend/src/components/BoxContents.jsx`.
+- **What's in the box**: your real kit photo with dashed outlines and numbered markers, a legend explaining each item (glue tabs, alcohol pad, nail file, cuticle stick, buffer, nail glue) and a FREE sticker. Hover or tap a legend row to light up its outline. Edit names, text and outline positions in `frontend/src/components/BoxContents.jsx`; the photo is `frontend/public/box/kit.webp`.
 - **Floating contact pill**: frosted glass with WhatsApp, Instagram and Call. It appears once you scroll; Call opens both numbers (tap to call, or copy).
 - **Shareable links**: every design has its own URL (`/#/d/<id>`).
 - **Always online**: designs and photos come from Supabase, with a bundled copy as a fallback so the page never goes blank.

@@ -13,6 +13,8 @@
   --font-display: "Bricolage Grotesque", system-ui, sans-serif;
   --font-body: "DM Sans", system-ui, sans-serif;
   --gutter: clamp(16px, 4vw, 40px);
+  --nav-h: 68px;
+  --fit: calc(100vh - var(--nav-h)); /* the screen left under the nav: the hero is sized to fit in this */
 }
 
 * { box-sizing: border-box; margin: 0; }
@@ -52,19 +54,19 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 .hero {
   position: relative; overflow: hidden; isolation: isolate;
   /* Full-bleed so the colour glow fades out softly instead of ending at a hard box edge. */
-  padding: clamp(48px, 9vw, 120px) max(var(--gutter), calc((100% - 1500px) / 2 + var(--gutter))) clamp(64px, 9vw, 120px);
+  padding: clamp(14px, 3.5vh, 44px) max(var(--gutter), calc((100% - 1500px) / 2 + var(--gutter))) clamp(20px, 5vh, 56px);
 }
 .hero::before, .hero::after { content: ""; position: absolute; left: 0; right: 0; z-index: -1; pointer-events: none; }
 .hero::before { top: 0; height: 60px; background: linear-gradient(to bottom, var(--bg), transparent); }
 .hero::after { bottom: 0; height: 180px; background: linear-gradient(to bottom, transparent, var(--bg)); }
-.hero__blob { position: absolute; z-index: -1; border-radius: 50%; filter: blur(70px); opacity: 0.6; }
-.hero__blob--a { width: 340px; height: 340px; background: #ffb3d4; top: -80px; right: -60px; }
-.hero__blob--b { width: 280px; height: 280px; background: #cdbcff; bottom: -80px; left: 10%; }
+.hero__blob { position: absolute; z-index: -1; border-radius: 50%; opacity: 0.7; } /* soft gradients, not blur filters: much cheaper on phones */
+.hero__blob--a { width: 480px; height: 480px; background: radial-gradient(circle, #ffb3d4 0%, rgba(255, 179, 212, 0) 66%); top: -150px; right: -130px; }
+.hero__blob--b { width: 400px; height: 400px; background: radial-gradient(circle, #cdbcff 0%, rgba(205, 188, 255, 0) 66%); bottom: -140px; left: calc(10% - 60px); }
 .eyebrow { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pink); margin-bottom: 14px; }
-.hero h1 { font-size: clamp(2.8rem, 9vw, 6rem); font-weight: 800; }
+.hero h1 { font-size: clamp(2.4rem, min(9vw, 10vh), 5.6rem); font-weight: 800; line-height: 1; }
 .hero h1 em { font-style: normal; background: linear-gradient(100deg, var(--pink), var(--lilac)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.hero__sub { max-width: 34ch; margin-top: 18px; font-size: clamp(1.05rem, 2.4vw, 1.25rem); color: #5a4552; font-weight: 500; }
-.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.hero__sub { max-width: 34ch; margin-top: clamp(10px, 2vh, 16px); font-size: clamp(1rem, 2vw, 1.2rem); color: #5a4552; font-weight: 500; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(14px, 3vh, 26px); }
 
 /* ---------- buttons ---------- */
 .btn {
@@ -179,11 +181,9 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
 .pill.is-shown { transform: translate(-50%, 0) scale(1); opacity: 1; pointer-events: auto; }
 .pill__bar {
   display: flex; align-items: center; justify-content: space-evenly; padding: 6px 10px; border-radius: 999px;
-  /* Frosted, see-through pastel glass: the catalogue shows softly through it. */
-  background: rgba(255, 250, 252, 0.62);
-  -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 14px 34px -14px rgba(160, 60, 110, 0.4), 0 2px 8px -2px rgba(120, 40, 80, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  /* Solid white with a black outline so it stands out on the pale page (and no live background blur: that makes phones stutter). */
+  background: #fffafc; border: 2px solid #1b1217;
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.5), 0 3px 0 rgba(27, 18, 23, 0.9);
 }
 /* Icons sit directly on the pill: no filled circles, just a soft tint behind the one being touched. */
 .pill__btn {
@@ -243,7 +243,7 @@ button:disabled { opacity:.35; cursor:default; }
 .gallery-window::after { right:-1px; background:linear-gradient(270deg,var(--bg),transparent); }
 .gallery-window.has-left::before,.gallery-window.has-right::after { opacity:1; }
 .gallery-track { display:flex; gap:18px; overflow-x:auto; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; padding:4px 0 18px; scrollbar-width:thin; scrollbar-color:#e4bdce transparent; }
-.gallery-track .card { flex:0 0 clamp(240px,28vw,305px); }
+.gallery-track .card { flex:0 0 clamp(216px,25.2vw,274px); }
 .gallery-track .card__media { aspect-ratio:4/5; }
 .card__media img { animation:fade .45s both; }
 .card__body h3 { line-height:1.3; font-size:.98rem; }
@@ -253,7 +253,7 @@ button:disabled { opacity:.35; cursor:default; }
  .gallery-controls { gap:4px; }
  .gallery-controls span { display:none; }
  .gallery-controls button { width:34px; height:34px; }
- .gallery-track .card { flex-basis:76vw; }
+ .gallery-track .card { flex-basis:68vw; }
  .gallery-window::before,.gallery-window::after { width:28px; }
 }
 
@@ -268,7 +268,10 @@ button:disabled { opacity:.35; cursor:default; }
   /* No backdrop-filter: blurring the page behind a moving sheet forces a re-blur every frame and makes swiping laggy. */
   background: rgba(34, 21, 31, 0.68);
   animation: fade 0.2s both;
+  transition: background-color 0.3s ease;
 }
+.reel.is-closing { background-color: rgba(34, 21, 31, 0); }
+.reel.is-closing .reel__close, .reel.is-closing .reel__hint, .reel.is-closing .reel__nav { opacity: 0; transition: opacity 0.2s ease; }
 .reel__close {
   position: fixed; z-index: 3; top: max(14px, env(safe-area-inset-top)); right: 14px;
   width: 46px; height: 46px; display: grid; place-items: center; border: 0; border-radius: 50%;
@@ -279,7 +282,7 @@ button:disabled { opacity:.35; cursor:default; }
   width: calc(100% - 24px); height: 76dvh; max-height: 76vh; margin-top: 28px;
   background: var(--surface); border-radius: 28px; box-shadow: 0 30px 80px -24px rgba(0, 0, 0, 0.6);
   contain: layout paint; transform: translateZ(0);
-  animation: sheet-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  animation: sheet-up 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) backwards; /* not "both": a held end state would block the close fade */
 }
 .reel__track { position: absolute; inset: 0 0 auto 0; height: 300%; will-change: transform; }
 .reel__slide { height: 33.3333%; display: flex; flex-direction: column; background: var(--surface); }
@@ -321,10 +324,10 @@ button:disabled { opacity:.35; cursor:default; }
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(125deg, rgba(255, 232, 242, 0.82) 0%, rgba(255, 240, 246, 0.74) 45%, rgba(244, 238, 255, 0.8) 100%);
 }
-.eyebrow--tagline { font-size: clamp(0.95rem, 3.2vw, 1.15rem); letter-spacing: 0.06em; margin-bottom: 18px; }
+.eyebrow--tagline { font-size: clamp(0.9rem, 3vw, 1.1rem); letter-spacing: 0.06em; margin-bottom: clamp(8px, 2vh, 16px); }
 /* Photo collage: three tilted prints that only just overlap. Thick white-to-beige brush strokes lie over each photo's
    white border: a horizontal pair (::before) and a vertical pair (::after), overshooting the corners so they cross. */
-.hero__collage { position: relative; margin: 4px 0 40px; aspect-ratio: 1 / 1.2; }
+.hero__collage { position: relative; margin: 0 auto clamp(10px, 2vh, 18px); width: min(100%, calc(var(--fit) - 340px)); aspect-ratio: 1 / 1; } /* phones: shorter, and never taller than the screen allows */
 .collage__item { position: absolute; width: 46%; aspect-ratio: 1 / 1.12; isolation: isolate; }
 .collage__item img {
   width: 100%; height: 100%; object-fit: cover; object-position: center 30%;
@@ -355,7 +358,7 @@ button:disabled { opacity:.35; cursor:default; }
 @media (min-width: 900px) {
   .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; align-items: center; column-gap: 40px; }
   .hero > :not(.hero__collage):not(.hero__blob):not(.hero__bg) { grid-column: 1; }
-  .hero__collage { grid-column: 2; grid-row: 1 / span 5; margin: 0; width: min(100%, 580px); justify-self: end; }
+  .hero__collage { grid-column: 2; grid-row: 1 / span 5; margin: 0; width: min(100%, 580px, calc((var(--fit) - 90px) / 1.2)); aspect-ratio: 1 / 1.2; justify-self: end; }
   .collage__item img { border-width: 5px; border-radius: 18px; }
 }
 
@@ -386,46 +389,88 @@ button:disabled { opacity:.35; cursor:default; }
 .stats__item .count i { grid-area: 1 / 1; font-style: normal; }
 .stats__item .count__final { visibility: hidden; }
 
-/* ---------- 3D "slide over" scroll effect ---------- */
-.hero {
-  position: sticky; top: 0; z-index: 0; /* top is set from JS so a tall hero is never cut off */
-  min-height: calc(100svh - 112px);
-  transform-origin: 50% 100%;
-  transform: perspective(1400px) translate3d(0, calc(var(--p, 0) * 60px), 0) scale(calc(1 - var(--p, 0) * 0.12)) rotateX(calc(var(--p, 0) * 7deg));
-  opacity: calc(1 - var(--p, 0) * 0.7);
-  will-change: transform, opacity;
-}
+/* ---------- page slides up over a still, pinned hero (desktop with a mouse) ---------- */
 .cover {
   position: relative; z-index: 1; background: var(--bg); padding-top: 36px;
-  border-radius: 36px 36px 0 0; box-shadow: 0 -34px 70px -28px rgba(120, 40, 80, 0.35);
+  border-radius: 36px 36px 0 0; box-shadow: 0 -24px 50px -26px rgba(120, 40, 80, 0.3);
 }
 .cover .stats { margin-top: 0; }
-@media (prefers-reduced-motion: reduce) {
-  .hero { position: relative; top: auto !important; transform: none; opacity: 1; min-height: 0; }
-  .cover { box-shadow: none; }
+@media (min-width: 1000px) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero { position: sticky; top: 0; z-index: 0; min-height: calc(100svh - 112px); }
+  .cover { box-shadow: 0 -34px 70px -28px rgba(120, 40, 80, 0.35); }
 }
 
-/* ---------- What's in the box ---------- */
-.box { max-width: 1500px; margin: 0 auto 56px; padding: 0 var(--gutter); }
-.box__head { text-align: center; margin-bottom: 22px; }
-.box__head h2 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; }
-.box__head > p:last-child { color: var(--muted); margin-top: 8px; }
-.box .eyebrow { margin-bottom: 8px; }
-.box__tray {
-  list-style: none; margin: 0; padding: clamp(20px, 3.5vw, 40px);
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(18px, 3vw, 32px) clamp(12px, 2vw, 24px);
+/* ---------- What's in the box (real kit photo + dashed callouts) ---------- */
+.kit { max-width: 1500px; margin: 0 auto 56px; padding: 0 var(--gutter); }
+.kit__head { text-align: center; margin-bottom: 26px; }
+.kit__head h2 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; }
+.kit__head > p:last-child { color: var(--muted); margin: 8px auto 0; max-width: 46ch; }
+.kit .eyebrow { margin-bottom: 8px; }
+.kit__body {
+  display: grid; gap: 28px; align-items: center; padding: clamp(18px, 3.5vw, 44px);
   background: linear-gradient(135deg, #fff 0%, #fff6f3 55%, #fdf0f8 100%);
   border: 1px solid var(--line); border-radius: 32px; box-shadow: 0 18px 40px -26px rgba(120, 40, 80, 0.35), inset 0 0 0 6px rgba(255, 255, 255, 0.7);
 }
-@media (min-width: 560px) { .box__tray { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 1000px) { .box__tray { grid-template-columns: repeat(6, 1fr); } }
-.box__item { display: grid; justify-items: center; align-content: start; text-align: center; gap: 4px; }
-.box__art { width: min(100%, 170px); aspect-ratio: 1; transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3); }
-.box__art svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.box__item:hover .box__art { transform: translateY(-8px) rotate(-3deg); }
-.box__item h3 { font-size: 1.05rem; font-weight: 800; margin-top: 4px; }
-.box__item p { color: var(--muted); font-size: 0.84rem; line-height: 1.4; max-width: 20ch; }
+@media (min-width: 900px) { .kit__body { grid-template-columns: minmax(0, 480px) 1fr; justify-content: center; gap: clamp(32px, 5vw, 72px); } }
+.kit__photo { position: relative; margin: 0 auto; width: min(100%, 480px); }
+.kit__photo img { display: block; width: 100%; height: auto; border-radius: 22px; box-shadow: 0 22px 44px -22px rgba(80, 40, 60, 0.45); }
+.kit__marks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.kit__marks polygon {
+  fill: rgba(255, 95, 162, 0); stroke: #ff3d8f; stroke-width: 2.2; stroke-dasharray: 7 6; stroke-linejoin: round;
+  transition: fill 0.25s, stroke-width 0.25s; animation: marching 1.6s linear infinite;
+}
+.kit__marks polygon.is-active { fill: rgba(255, 95, 162, 0.22); stroke-width: 3; }
+@keyframes marching { to { stroke-dashoffset: -26; } }
+.kit__dot {
+  position: absolute; translate: -50% -50%; width: 28px; height: 28px; padding: 0; display: grid; place-items: center;
+  border-radius: 50%; border: 2px solid #ff3d8f; background: #fff; color: #c2175f; font-size: 0.8rem; font-weight: 800; cursor: pointer;
+  box-shadow: 0 3px 8px rgba(120, 30, 70, 0.3); transition: transform 0.2s, background 0.2s, color 0.2s;
+}
+.kit__dot.is-active, .kit__dot:hover { background: #ff3d8f; color: #fff; transform: scale(1.18); }
+.kit__free {
+  position: absolute; top: -16px; right: -12px; width: 96px; height: 96px; border-radius: 50%; display: grid; place-content: center; justify-items: center; text-align: center;
+  background: linear-gradient(135deg, #ff5fa2, #b69cff); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; line-height: 1;
+  rotate: 12deg; box-shadow: 0 10px 22px -8px rgba(160, 40, 110, 0.6); border: 3px solid #fff;
+}
+.kit__free small { font-family: var(--font-body); font-weight: 700; font-size: 0.55rem; letter-spacing: 0; line-height: 1.15; max-width: 52px; margin-top: 4px; text-transform: uppercase; }
+.kit__legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.kit__legend li {
+  display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 18px; background: #fff; border: 1px solid var(--line); cursor: default;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background 0.2s;
+}
+.kit__legend li.is-active { border-color: #ff3d8f; background: #fff5fa; box-shadow: 0 10px 24px -14px rgba(255, 61, 143, 0.7); transform: translateX(4px); }
+.kit__num { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #fff; border: 2px dashed #ff3d8f; color: #c2175f; font-weight: 800; font-size: 0.9rem; }
+.kit__legend h3 { font-size: 1.02rem; font-weight: 800; }
+.kit__legend p { color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
 /* glide in, one after another */
-.box__tray.is-armed .box__item { opacity: 0; transform: translateY(26px) scale(0.96); }
-.box__tray.is-in .box__item { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15); transition-delay: calc(var(--i) * 90ms); }
-@media (prefers-reduced-motion: reduce) { .box__item, .box__art { transition: none !important; opacity: 1 !important; transform: none !important; } }
+.kit.is-armed .kit__head, .kit.is-armed .kit__photo, .kit.is-armed .kit__legend li, .kit.is-armed .kit.is-in .kit__head, .kit.is-in .kit__photo, .kit.is-in .kit__legend li, .kit.is-in .kit.is-in .kit__photo { transition-delay: 0.1s; }
+.kit.is-in .kit__legend li { transition-delay: calc(0.2s + var(--i) * 80ms); }
+.kit.is-in @media (prefers-reduced-motion: reduce) { .kit * { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; } }
+
+/* nav: long label on wide screens, short one on phones; slightly tighter on very small phones */
+.nav__short { display: none; }
+@media (max-width: 699px) { .nav__long { display: none; } .nav__short { display: inline; } }
+@media (max-width: 420px) {
+  .nav { padding-left: 14px; padding-right: 14px; }
+  .nav__brand { font-size: 1rem; }
+  .nav nav { font-size: 0.8rem; }
+  .nav nav a:not(.nav__ig) { padding: 6px 7px; }
+  .nav nav .nav__ig { margin-left: 4px; width: 32px; height: 32px; }
+}
+
+/* very narrow phones: keep both hero buttons on one row so the hero stays within the screen */
+@media (max-width: 420px) {
+  .hero__cta { gap: 10px; }
+  .hero__cta .btn { padding: 0 16px; font-size: 0.92rem; }
+}
+
+/* tablets held upright: bigger text than a phone, still one column, so the collage gives up more height */
+@media (min-width: 600px) and (max-width: 899px) {
+  .hero__collage { width: min(100%, calc(var(--fit) - 520px)); }
+}
+
+/* single-column layouts have a shorter collage box: lift the lowest photo so it ends inside it (no overlap with the tagline) */
+@media (max-width: 899px) {
+  .collage__item--a { top: 43%; }
+  .hero__collage { margin-bottom: clamp(14px, 2.4vh, 22px); }
+}
