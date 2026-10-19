@@ -1,16 +1,91 @@
-# nailsbyroops_ — Nail Art Catalogue
+<div align="center">
 
-A React (Vite) website for nailsbyroops_. It works on phone, tablet, laptop and desktop.
+# nailsbyroops_
 
-**How it's put together (production = just two things):**
+### Tiny canvases. Big mood.
+
+A fast, pastel-pretty catalogue for **nailsbyroops_**: premium handmade press-on nails.
+Browse every look, flick through them reel-style, and book on WhatsApp in one tap.
+
+![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646cff?logo=vite&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-database%20%26%20storage-3ecf8e?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000?logo=vercel&logoColor=white)
+
+<img src="docs/screenshots/hero-desktop.jpg" alt="nailsbyroops_ landing page on desktop" width="100%" />
+
+</div>
+
+---
+
+## About
+
+**nailsbyroops_** makes premium handmade press-on nails: salon-style nail art you can put on at home, reuse, and wear to
+match your mood. From a quiet French tip to a full 3D-charm moment, there is a set for every look. Custom designs and
+wholesale / bulk orders are always welcome, and over **1500 orders** have been delivered across **15+ states**.
+
+This repository is the website: a mobile-first catalogue where customers browse collections, tap a look, and book
+it straight on WhatsApp (the message already names the design and links to its photo). There is also an **About** section
+on the page itself (`frontend/src/components/About.jsx`).
+
+Find the brand on Instagram: [@nailsbyroops_](https://instagram.com/nailsbyroops_)
+
+## Highlights
+
+- **Collage hero**: three tilted photos with white-and-beige dry-brush strokes over their borders, on a soft pastel wash.
+- **Collections you can scroll**: every style (chrome, French, 3D charms, festive...) is a horizontal rail with edge fades and arrow controls.
+- **Reel-style viewer**: tap any photo to open a centered card that loops through *all* designs.
+  Swipe up for next, down for previous, left to close, right to open Instagram. On desktop use mouse drag, the scroll
+  wheel, the ▲▼ buttons or the arrow keys (Esc closes). Quick flicks commit instantly and neighbouring photos are preloaded.
+- **Book this look**: opens WhatsApp with the design name and a link to its photo.
+- **Floating contact pill**: frosted glass with WhatsApp, Instagram and Call. It appears once you scroll; Call opens both numbers (tap to call, or copy).
+- **Shareable links**: every design has its own URL (`/#/d/<id>`).
+- **Always online**: designs and photos come from Supabase, with a bundled copy as a fallback so the page never goes blank.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/hero-mobile.jpg" width="250" alt="Landing page on mobile" /><br /><sub>Landing</sub></td>
+    <td align="center"><img src="docs/screenshots/catalogue-mobile.jpg" width="250" alt="Catalogue and contact pill on mobile" /><br /><sub>Catalogue + contact pill</sub></td>
+    <td align="center"><img src="docs/screenshots/viewer-mobile.jpg" width="250" alt="Reel viewer on mobile" /><br /><sub>Reel viewer</sub></td>
+  </tr>
+</table>
+
+<img src="docs/screenshots/catalogue-desktop.jpg" alt="Catalogue collections on desktop" width="100%" />
+
+<img src="docs/screenshots/viewer-desktop.jpg" alt="Reel viewer on desktop" width="100%" />
+
+<img src="docs/screenshots/about-desktop.jpg" alt="About section on desktop" width="100%" />
+
+## How it's put together
+
+Production is just two things:
 
 | Piece | What it does | Where |
 |---|---|---|
-| `frontend/` | The website. Reads designs straight from Supabase with the public, read-only key. | **Vercel** |
+| `frontend/` | The website (React + Vite). Reads designs straight from Supabase with the public, read-only key. | **Vercel** |
 | Supabase | Database (collections, designs) and public photo storage. | **Supabase** |
 
 `backend/` (FastAPI) is optional and **not used by the live site**. It stays in the repo as a ready-made API
 (`/api/catalogue`) in case you want one later. The Supabase tables and `schema.sql` are shared with it.
+
+```
+.
+├── frontend/            React + Vite site
+│   ├── src/
+│   │   ├── App.jsx            page layout, routing by #hash
+│   │   ├── site.js            contact details and homepage numbers
+│   │   ├── catalogue.json     bundled fallback catalogue
+│   │   ├── supabase.js        fetches collections + designs
+│   │   └── components/        About, ContactPill, DesignModal (reel), StyleGallery, ...
+│   ├── public/hero/           landing photos
+│   ├── public/photos/         thumbs/ (cards) and view/ (viewer) WebP images
+│   └── photos-src/            original photos (not shipped)
+├── backend/             optional FastAPI + Supabase schema
+├── scripts/             image pipeline and Supabase import
+└── docs/screenshots/    images used in this README
+```
 
 ## Run locally
 
@@ -26,35 +101,31 @@ Without the Supabase values the site still works: it shows the copy bundled in `
 ## Change your details
 
 Phone numbers, Instagram, the WhatsApp number and the homepage numbers (designs / orders / states) live in
-`frontend/src/site.js`. WhatsApp links assume India (`91`). Edit the file and redeploy.
+`frontend/src/site.js`. WhatsApp links assume India (`91`). Edit the file and redeploy. The About section reads the
+brand name, Instagram and the order / state counts from the same file.
 
 ## Photo catalogue
 
-`frontend/src/catalogue.json` defines collection names (their order in the file is the order on the page), descriptions, photo order and stable shareable IDs.
-The original photos live in `frontend/photos-src/` (not shipped to the website). `scripts/make_images.py` turns each one
-into two **WebP** images of identical size, with plain white/black borders trimmed and the crop centred on the nails:
-`frontend/public/photos/thumbs/` (600x750, catalogue cards) and `photos/view/` (1000x1250, the viewer and the photo
-link sent on WhatsApp). Each entry in the catalogue also stores an individual crop rectangle and exposure multiplier,
-which the script applies. After adding or editing photos run `python3 scripts/make_images.py`
-(needs `pip install pillow numpy`).
-`scripts/photo-source-index.json` maps imported filenames and records excluded promotional collages
-and repeated looks. Two supplied videos are not included in the photo galleries.
+`frontend/src/catalogue.json` defines collection names (their order in the file is the order on the page), descriptions,
+photo order and stable shareable IDs. The original photos live in `frontend/photos-src/` (not shipped to the website).
+`scripts/make_images.py` turns each one into two **WebP** images of identical size, with plain white/black borders trimmed
+and the crop centred on the nails: `frontend/public/photos/thumbs/` (600x750, catalogue cards) and `photos/view/`
+(1000x1250, the viewer and the photo link sent on WhatsApp). Each entry in the catalogue also stores an individual crop
+rectangle and exposure multiplier, which the script applies. After adding or editing photos run:
 
-The hero uses your flat-lay photo as a faded pink background (`frontend/public/hero/bg-cards.webp`) with three real
-product photos stacked on a static pastel canvas (`photo-*.webp`, all the same size). Swap those files to change them.
+```bash
+pip install pillow numpy
+python3 scripts/make_images.py
+```
 
-Contact lives in a floating pill (`ContactPill.jsx`): WhatsApp, Instagram and Call. It stays hidden at the top of
-the page and eases in once you scroll. The call icon opens a popup with both numbers (tap to call/save, or copy).
-Numbers, Instagram and the WhatsApp number come from `frontend/src/site.js`.
+`scripts/photo-source-index.json` maps imported filenames and records excluded promotional collages and repeated looks.
 
-"Book this look" opens WhatsApp with a message naming the design plus the link to its photo
-(`/photos/view/...`). WhatsApp links cannot attach a file, so the photo shows as a preview in the chat once the
-site is live on a public URL (it won't preview from localhost).
+The hero uses a flat-lay photo as a faded pink background (`frontend/public/hero/bg-cards.webp`) with three real product
+photos in a tilted collage (`photo-*.webp`). Swap those files to change them.
 
-Each collection scrolls horizontally with edge fades and arrow controls. Tapping a photo
-opens a reel-style bottom sheet (75% of the screen, attached to the bottom, over a blurred page) that loops through every design:
-swipe up for the next, down for the previous, left to close, right to open Instagram and follow.
-On desktop the same works with mouse drag, scroll wheel, the ▲▼ buttons and the arrow keys; Esc or ✕ closes.
+"Book this look" opens WhatsApp with a message naming the design plus the link to its photo (`/photos/view/...`).
+WhatsApp links cannot attach a file, so the photo shows as a preview in the chat once the site is live on a public URL
+(it won't preview from localhost).
 
 ## Supabase (designs and photos)
 
@@ -82,3 +153,11 @@ Import the GitHub repo in Vercel with **Root Directory `frontend`** (framework: 
 Both are public by design: the key can only read, because row-level security allows nothing else. **Never** put
 the secret key in Vercel or in any `VITE_` variable (those end up in the website's code). Changing a variable
 needs a redeploy.
+
+---
+
+<div align="center">
+
+Made with 💅 for [@nailsbyroops_](https://instagram.com/nailsbyroops_)
+
+</div>

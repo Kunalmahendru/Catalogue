@@ -7,6 +7,7 @@ import DesignModal from "./components/DesignModal.jsx";
 import ContactPill from "./components/ContactPill.jsx";
 import Stats from "./components/Stats.jsx";
 import Offer from "./components/Offer.jsx";
+import About from "./components/About.jsx";
 import { InstagramIcon, WhatsAppIcon } from "./components/Icons.jsx";
 import { bookMessage, whatsappUrl } from "./links.js";
 
@@ -69,6 +70,7 @@ export default function App() {
         </a>
         <nav>
           <a href="#designs">Designs</a>
+          <a href="#about">About</a>
           {site && (
             <a href={whatsappUrl(site, bookMessage())} target="_blank" rel="noreferrer">
               Book
@@ -167,6 +169,8 @@ export default function App() {
             </div>
           )}
         </section>
+
+        <About site={site} />
 
       </main>
 
