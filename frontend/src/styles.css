@@ -294,11 +294,6 @@ button:disabled { opacity:.35; cursor:default; }
   display: flex; flex-direction: column; gap: 3px; padding: 0 20px; align-items: flex-start;
   color: rgba(255, 255, 255, 0.92); font-size: 0.78rem; font-weight: 500; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
-.reel__toast {
-  position: fixed; z-index: 4; top: 22%; left: 50%; transform: translateX(-50%);
-  padding: 10px 18px; border-radius: 999px; background: rgba(34, 21, 31, 0.9); color: #fff; font-size: 0.9rem; font-weight: 600;
-  animation: fade 0.2s both;
-}
 @media (min-width: 800px) {
   .reel__sheet { width: 75vw; max-width: 1400px; height: min(80dvh, 860px); margin-top: 24px; border-radius: 32px; }
   .reel__hint { flex-direction: row; gap: 4px 22px; left: 0; right: 0; justify-content: center; top: 26px; padding: 0 90px; }
