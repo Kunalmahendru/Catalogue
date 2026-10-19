@@ -270,6 +270,7 @@ export default function App() {
 
       <footer className="footer">
         <span>© {new Date().getFullYear()} nailsbyroops_</span>
+        <BackToTop />
         {site && (
           <a href={site.instagram_url} target="_blank" rel="noreferrer">
             @{site.instagram}
@@ -278,7 +279,6 @@ export default function App() {
       </footer>
 
       {site && <ContactPill site={site} />}
-      <BackToTop />
 
       {openDesign && <DesignModal designs={sequence} design={openDesign} site={site} onClose={close} onSelect={select} />}
     </>
