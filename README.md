@@ -22,7 +22,7 @@ Browse every look, flick through them reel-style, and book on WhatsApp in one ta
 
 **nailsbyroops_** makes premium handmade press-on nails: salon-style nail art you can put on at home, reuse, and wear to
 match your mood. From a quiet French tip to a full 3D-charm moment, there is a set for every look. Custom designs and
-wholesale / bulk orders are always welcome, and over **1500 orders** have been delivered across **15+ states**.
+wholesale / bulk orders are always welcome, and **175+ customers** and **850+ orders** across **15+ states**.
 
 This repository is the website: a mobile-first catalogue where customers browse collections, tap a look, and book
 it straight on WhatsApp (the message already names the design and links to its photo). There is also an **About** section
@@ -101,7 +101,7 @@ Without the Supabase values the site still works: it shows the copy bundled in `
 
 ## Change your details
 
-Phone numbers, Instagram, the WhatsApp number and the homepage numbers (designs / orders / states) live in
+Phone numbers, Instagram, the WhatsApp number and the homepage numbers (designs / customers / orders / states) live in
 `frontend/src/site.js`. WhatsApp links assume India (`91`). Edit the file and redeploy. The About section reads the
 brand name, Instagram and the order / state counts from the same file.
 
@@ -111,7 +111,7 @@ brand name, Instagram and the order / state counts from the same file.
 photo order and stable shareable IDs. The original photos live in `frontend/photos-src/` (not shipped to the website).
 `scripts/make_images.py` turns each one into two **WebP** images of identical size, with plain white/black borders trimmed
 and the crop centred on the nails: `frontend/public/photos/thumbs/` (600x750, catalogue cards) and `photos/view/`
-(1000x1250, the viewer and the photo link sent on WhatsApp). Each entry in the catalogue also stores an individual crop
+(1000x1250, the viewer). Each entry in the catalogue also stores an individual crop
 rectangle and exposure multiplier, which the script applies. After adding or editing photos run:
 
 ```bash
@@ -124,9 +124,8 @@ python3 scripts/make_images.py
 The hero uses a flat-lay photo as a faded pink background (`frontend/public/hero/bg-cards.webp`) with three real product
 photos in a tilted collage (`photo-*.webp`). Swap those files to change them.
 
-"Book this look" opens WhatsApp with a message naming the design plus the link to its photo (`/photos/view/...`).
-WhatsApp links cannot attach a file, so the photo shows as a preview in the chat once the site is live on a public URL
-(it won't preview from localhost).
+"Book this look" opens WhatsApp with a short message naming the design ("Hi! I'd love to book this design: ... Is it
+available?"). The general Book buttons open a chat saying you'd like to talk about ordering some nails.
 
 ## Supabase (designs and photos)
 

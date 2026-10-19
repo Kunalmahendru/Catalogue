@@ -50,6 +50,9 @@ export default function App() {
     const cover = coverRef.current;
     const nav = document.querySelector(".nav");
     let frame = 0;
+    // After a click on Designs / About the highlight must jump straight there, not wait for the smooth scroll to arrive.
+    let forced = null;
+    let lockUntil = 0;
 
     const pin = () => {
       // Pin the hero under the nav; if it is taller than the screen, pin its bottom edge so nothing is cut off.
@@ -64,6 +67,8 @@ export default function App() {
       const p = Math.min(1, Math.max(0, (vh - cover.getBoundingClientRect().top) / (vh - navH)));
       hero.style.setProperty("--p", p.toFixed(3));
 
+      if (forced && performance.now() < lockUntil) return;
+      forced = null;
       const line = vh * 0.4;
       const designs = document.getElementById("designs");
       const about = document.getElementById("about");
@@ -75,6 +80,16 @@ export default function App() {
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
+    const onNavClick = (e) => {
+      const link = e.target.closest?.('a[href="#designs"], a[href="#about"]');
+      if (!link) return;
+      forced = link.getAttribute("href").slice(1);
+      lockUntil = performance.now() + 2200;
+      setActive(forced);
+    };
+    const unlock = () => {
+      lockUntil = 0; // the visitor took over scrolling: go back to following the page
+    };
     const onResize = () => {
       pin();
       onScroll();
@@ -84,11 +99,15 @@ export default function App() {
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
+    document.addEventListener("click", onNavClick);
+    for (const type of ["wheel", "touchstart", "keydown"]) window.addEventListener(type, unlock, { passive: true });
     const observer = new ResizeObserver(onResize);
     observer.observe(hero);
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("click", onNavClick);
+      for (const type of ["wheel", "touchstart", "keydown"]) window.removeEventListener(type, unlock);
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
