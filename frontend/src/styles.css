@@ -480,12 +480,21 @@ button:disabled { opacity:.35; cursor:default; }
 @media (prefers-reduced-motion: no-preference) and (not ((min-width: 1000px) and (hover: hover))) {
   .hero { position: sticky; top: 0; z-index: 0; }
 }
+/* Phones: size the hero to the screen that is visible with the browser toolbars showing (100vh is taller than that),
+   so the hero fits at rest and does not need to scroll under the nav. */
+@supports (height: 100svh) {
+  @media (not ((min-width: 1000px) and (hover: hover))) {
+    :root { --fit: calc(100svh - var(--nav-h)); }
+  }
+}
 
 /* ---------- back to top ---------- */
-/* Lives inside the footer, centred between the copyright and the handle, so it never covers any text. */
-.footer { align-items: center; flex-wrap: nowrap; }
+/* Lives in the footer's right corner, vertically level with the Instagram handle (which sits just left of it),
+   so it never covers any text. */
+.footer { align-items: center; flex-wrap: nowrap; justify-content: flex-start; }
+.footer > :first-child { margin-right: auto; }
 .totop {
-  position: relative; flex: none; width: 48px; height: 48px; margin: -8px auto; display: grid; place-items: center; padding: 0;
+  position: relative; flex: none; width: 48px; height: 48px; margin: -8px 0; display: grid; place-items: center; padding: 0;
   border: 0; border-radius: 50%; color: #fff;
   background: linear-gradient(135deg, var(--pink), var(--lilac));
   box-shadow: 0 10px 22px -10px rgba(255, 95, 162, 0.8), inset 0 0 0 2px rgba(255, 255, 255, 0.55);
@@ -499,3 +508,9 @@ button:disabled { opacity:.35; cursor:default; }
 /* pressed: the arrow lifts out of the button and fades while the page glides up, and the button fades with it */
 .totop.is-going { opacity: 0; pointer-events: none; transition: opacity 0.5s ease 0.2s; }
 .totop.is-going .totop__arrow { transform: translateY(-46px); opacity: 0; transition: transform 0.5s ease-in, opacity 0.45s ease-in; }
+
+/* very narrow phones: keep "© 2026 nailsbyroops_" on one line next to the handle and the button */
+@media (max-width: 380px) {
+  .footer { gap: 8px; font-size: 0.82rem; }
+  .footer > :first-child { white-space: nowrap; }
+}

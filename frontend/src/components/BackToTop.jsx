@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowUpIcon } from "./Icons.jsx";
 
 /**
- * Round "back to top" button that sits in the footer, between the copyright and the handle. It pops in when the footer
+ * Round "back to top" button that sits in the footer's right corner, level with the Instagram handle. It pops in when the footer
  * comes into view (an IntersectionObserver, so no scroll listener). Pressed, its arrow lifts out and fades, the button
  * fades after it, and the page glides up to the hero.
  */
