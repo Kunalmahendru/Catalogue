@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fetchCatalogue, fetchSite } from "./api.js";
+import { fetchCatalogue } from "./supabase.js";
+import { SITE as site } from "./site.js";
 import StyleGallery from "./components/StyleGallery.jsx";
 import bundled from "./catalogue.json"; // fallback copy if Supabase can't be reached
 import DesignModal from "./components/DesignModal.jsx";
@@ -15,18 +16,11 @@ const designIdFromHash = () => {
 };
 
 export default function App() {
-  const [site, setSite] = useState(null);
   const [data, setData] = useState(null); // { collections, designs } once loaded
   const [category, setCategory] = useState("All");
   const [openId, setOpenId] = useState(designIdFromHash);
 
-  const load = useCallback(() => {
-    fetchSite().then(setSite).catch(() => setSite(null));
-  }, []);
-
-  useEffect(load, [load]);
-
-  // Designs live in Supabase. If the API is slow, down or empty, show the bundled copy so the site never goes blank.
+  // Designs live in Supabase. If it is slow, unreachable or empty, show the bundled copy so the site never goes blank.
   useEffect(() => {
     let alive = true;
     fetchCatalogue()
