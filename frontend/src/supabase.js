@@ -46,3 +46,14 @@ export async function fetchCatalogue(timeoutMs = 3500) {
     clearTimeout(timer);
   }
 }
+
+// Fire-and-forget: record an anonymous visit/click. Never throws and never slows the page.
+export function recordEvent(row) {
+  if (!URL || !KEY) return;
+  fetch(`${URL}/rest/v1/events`, {
+    method: "POST",
+    keepalive: true, // lets the request finish even if the click opens another tab or the page unloads
+    headers: { ...headers(), "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify(row),
+  }).catch(() => {});
+}

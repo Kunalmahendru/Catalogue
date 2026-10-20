@@ -42,7 +42,7 @@ function Slide({ design, position, total, site }) {
         <p className="reel__desc">{design.description}</p>
         {site && (
           <div className="reel__actions">
-            <a className="btn btn--wa" href={whatsappUrl(site, bookMessage(design))} target="_blank" rel="noreferrer">
+            <a className="btn btn--wa" href={whatsappUrl(site, bookMessage(design))} data-design={design.id} target="_blank" rel="noreferrer">
               <WhatsAppIcon /> Book this look
             </a>
             <a className="btn btn--ghost" href={telUrl(site.phones[0])}>

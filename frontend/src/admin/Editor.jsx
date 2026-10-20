@@ -348,6 +348,9 @@ export default function Editor({ email }) {
             nailsbyroops<span>_</span> <small>admin</small>
           </p>
           <div className="adm-top__actions">
+            <a className="adm-btn adm-btn--small" href="/stats">
+              Stats
+            </a>
             <a className="adm-btn adm-btn--small" href="/" target="_blank" rel="noreferrer">
               View site ↗
             </a>
