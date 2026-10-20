@@ -91,3 +91,6 @@ end;
 $$;
 revoke all on function public.get_stats() from public, anon;
 grant execute on function public.get_stats() to authenticated;
+
+-- Make the API notice the new table and function straight away.
+notify pgrst, 'reload schema';
