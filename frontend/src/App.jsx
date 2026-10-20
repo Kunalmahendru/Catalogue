@@ -88,16 +88,14 @@ export default function App() {
     document.addEventListener("click", onNavClick);
     for (const type of ["wheel", "touchstart", "keydown"]) window.addEventListener(type, unlock, { passive: true });
 
-    // ---- pinned hero (every screen size unless the visitor prefers reduced motion) ----
-    // The hero just stays where it is while the rest of the page slides up over it: no scaling, tilting or fading,
-    // and no scroll listener at all. The script only works out where to pin it when the window size changes.
-    // The same pinning now also runs on phones and tablets (CSS below); only "reduce motion" turns it off.
-    const mq = window.matchMedia("(prefers-reduced-motion: no-preference)");
-    const desktop = window.matchMedia("(min-width: 1000px) and (hover: hover)");
+    // ---- pinned hero (desktop with a mouse only) ----
+    // The hero stays where it is while the rest of the page slides up over it: no scaling, tilting or fading, and no
+    // scroll listener at all. The script only works out where to pin it when the window size changes.
+    // Phones and tablets scroll like a normal page: the hero scrolls away and never shows behind the panels.
+    const mq = window.matchMedia("(min-width: 1000px) and (hover: hover) and (prefers-reduced-motion: no-preference)");
     const pin = () => {
-      // Phones: the hero always rests right under the nav and never moves; the page just slides over it.
-      // Desktop: pin under the nav, or pin the hero's bottom edge if it is taller than the screen so nothing is cut off.
-      hero.style.top = `${desktop.matches ? Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight) : nav.offsetHeight}px`;
+      // Pin under the nav, or pin the hero's bottom edge if it is taller than the screen so nothing is cut off.
+      hero.style.top = `${Math.min(nav.offsetHeight, window.innerHeight - hero.offsetHeight)}px`;
     };
     let observer = null;
     const sync = () => {
