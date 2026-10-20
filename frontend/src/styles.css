@@ -38,7 +38,7 @@ h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px var(--gutter);
-  background: rgba(255, 246, 243, 0.96);
+  background: var(--bg); /* fully solid, so nothing from the hero shows through it while scrolling */
   border-bottom: 1px solid transparent;
 }
 .nav__brand { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; letter-spacing: -0.03em; }
@@ -475,11 +475,6 @@ button:disabled { opacity:.35; cursor:default; }
   .hero__collage { margin-bottom: clamp(14px, 2.4vh, 22px); }
 }
 
-/* ---------- phones and tablets: the page slides up over a pinned hero, like on desktop ---------- */
-/* Everything the desktop media query above does not cover. The desktop rules themselves are untouched. */
-@media (prefers-reduced-motion: no-preference) and (not ((min-width: 1000px) and (hover: hover))) {
-  .hero { position: sticky; top: 0; z-index: 0; }
-}
 /* Phones: size the hero to the screen that is visible with the browser toolbars showing (100vh is taller than that),
    so the hero fits at rest and does not need to scroll under the nav. */
 @supports (height: 100svh) {
