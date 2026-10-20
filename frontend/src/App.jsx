@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchCatalogue } from "./supabase.js";
 import { SITE as site } from "./site.js";
+import { startTracking } from "./track.js";
 import StyleGallery from "./components/StyleGallery.jsx";
 import bundled from "./catalogue.json"; // fallback copy if Supabase can't be reached
 import DesignModal from "./components/DesignModal.jsx";
@@ -37,6 +38,9 @@ export default function App() {
       alive = false;
     };
   }, []);
+
+  // Anonymous visit / click counting (see track.js).
+  useEffect(() => startTracking(), []);
 
   // Keep the URL in sync so a design can be shared as a link (#/d/pink-chrome).
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { configured, supabase } from "./client.js";
 import Editor from "./Editor.jsx";
+import Stats from "./Stats.jsx";
 import { toEmail, toId } from "./ids.js";
 import "./admin.css";
 
@@ -53,7 +54,7 @@ function Login() {
   );
 }
 
-function Gate({ session }) {
+function Gate({ session, view }) {
   const [state, setState] = useState("checking"); // checking | ok | denied | {error}
 
   useEffect(() => {
@@ -68,7 +69,7 @@ function Gate({ session }) {
     };
   }, [session.user.id]);
 
-  if (state === "ok") return <Editor email={session.user.email} />;
+  if (state === "ok") return view === "stats" ? <Stats email={session.user.email} /> : <Editor email={session.user.email} />;
   return (
     <Shell>
       {state === "checking" && <p className="adm-muted">Checking access…</p>}
@@ -96,11 +97,11 @@ function Gate({ session }) {
   );
 }
 
-export default function AdminApp() {
+export default function AdminApp({ view = "editor" }) {
   const [session, setSession] = useState(undefined); // undefined = still loading, null = signed out
 
   useEffect(() => {
-    document.title = "Admin · nailsbyroops_";
+    document.title = view === "stats" ? "Stats · nailsbyroops_" : "Admin · nailsbyroops_";
     const meta = document.createElement("meta");
     meta.name = "robots";
     meta.content = "noindex,nofollow";
@@ -127,5 +128,5 @@ export default function AdminApp() {
       </Shell>
     );
   if (!session) return <Login />;
-  return <Gate session={session} />;
+  return <Gate session={session} view={view} />;
 }
