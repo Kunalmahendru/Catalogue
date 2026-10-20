@@ -168,6 +168,22 @@ heading renames everything inside it (the live site uses the same rule). Nothing
 New photos are cropped to the standard 4:5 in the browser (plain borders trimmed, drag to adjust, slider to zoom) and
 uploaded as WebP when you publish. A section can only be deleted when it is empty.
 
+## Stats page (`/stats`)
+
+Signs in with the same ID and password as `/admin` and shows: visits and unique visitors for the last hour, 24 hours,
+7 days, 30 days and all time; WhatsApp, Instagram and Call clicks for the same periods; a 24-hour chart; the most booked
+designs; and which sites visitors came from. It refreshes every 30 seconds.
+
+Setup: run `backend/supabase/analytics.sql` once in the Supabase SQL Editor (make sure it is the same project the site
+uses). It creates an `events` table that anyone may add to but nobody can read from the website, plus a `get_stats()`
+function that only admins can call.
+
+What is recorded: the event type, a random anonymous id kept in the visitor's browser, the design (for *Book this look*)
+and the referring site. No names, no IP addresses. One visit per browser session; nothing is counted on `/admin` or
+`/stats`, for automated browsers, or on devices where *Don't count my own visits* is ticked on `/stats`. Because adding
+events is public, a determined person could inflate the numbers. Depending on where your visitors live you may want a
+short privacy note on the site.
+
 ## Deploy (one Vercel project)
 
 Import the GitHub repo in Vercel with **Root Directory `frontend`** (framework: Vite). Add two environment variables

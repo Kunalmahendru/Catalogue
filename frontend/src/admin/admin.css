@@ -120,3 +120,7 @@
 .st-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .st-own { display: grid; gap: 6px; }
 @media (max-width: 520px) { .st-big { font-size: 1.8rem; } }
+.st-main > *, .st-two > * { min-width: 0; }
+.st-grid { grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); }
+.st-two { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+@media (max-width: 520px) { .st-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
